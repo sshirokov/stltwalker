@@ -21,35 +21,59 @@ void usage(int argc, char **argv, char *err) {
 		exit(err ? 1 : 0);
 }
 
+typedef float float3[3];
+
+typedef struct s_stl_triangle {
+		float3 normal;
+		float3 vertices[3];
+} stl_facet;
+
 typedef struct s_stl_object {
 		char header[80];
 		uint32_t facet_count;
+		stl_facet *facets;
 } stl_object;
 
 void stl_free(stl_object *obj) {
 		log_err("TODO: stl_free() is a stub.");
 }
 
-stl_object *stl_alloc(void) {
+stl_object *stl_alloc(char *header, uint32_t n_facets) {
 		stl_object *obj = (stl_object*)malloc(sizeof(stl_object));
 		check_mem(obj);
 		bzero(obj, sizeof(stl_object));
+
+		obj->facet_count = n_facets;
+		if(n_facets > 0) {
+				obj->facets = (stl_facet*)calloc(n_facets, sizeof(stl_facet));
+				check_mem(obj->facets);
+		}
+
 		return obj;
 error:
 		exit(-1);
 }
 
-stl_object *stl_parse(int fd) {
+stl_object *stl_read(int fd) {
 		int rc = -1;
-		stl_object *obj = stl_alloc();
+		char header[80] = {0};
+		uint32_t n_tris = 0;
+		stl_object *obj = NULL;
 
 		// Read the header
-		check((rc = read(fd, obj->header, sizeof(obj->header))) != -1,
-			  "Unable to read STL header.");
+		rc = read(fd, header, sizeof(header));
+		check(rc == sizeof(header), "Unable to read STL header. Got %d bytes.", rc);
 
-		char h1[81] = {0};
-		memcpy(h1, obj->header, 80);
-		log_info("Header: [%s]", h1);
+		// Triangle count
+		rc = read(fd, &n_tris, sizeof(n_tris));
+		check(rc == sizeof(n_tris), "Failed to read facet count.");
+		check(n_tris > 0, "Facet count cannot be zero.");
+
+		obj = stl_alloc(header, n_tris);
+
+		for(uint32_t i = 0; i < obj->facet_count; i++) {
+				log_info("Reading triangle %d", i + 1);
+		}
 
 		return obj;
 error:
@@ -57,12 +81,12 @@ error:
 		return NULL;
 }
 
-stl_object *stl_parse_file(char *path) {
+stl_object *stl_read_file(char *path) {
 		stl_object *obj = NULL;
 		int fd = open(path, O_RDONLY);
 		check(fd != -1, "Unable to open '%s'", path);
 
-		obj = stl_parse(fd);
+		obj = stl_read(fd);
 		close(fd);
 
 		return obj;
@@ -78,10 +102,11 @@ int main(int argc, char *argv[]) {
 
 		if(argc < 2) usage(argc, argv, "At least a filename is required.");
 
-		obj = stl_parse_file(infile);
-		check(obj != NULL, "Failed to parse '%s'", infile);
+		obj = stl_read_file(infile);
+		check(obj != NULL, "Failed to read '%s'", infile);
 
-		log_info("==> TODO: Something.");
+		log_info("Parsed object with %d triangles!", obj->facet_count);
+		stl_free(obj);
 
 		return 0;
 error:
