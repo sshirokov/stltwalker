@@ -54,7 +54,20 @@ error:
 		exit(-1);
 }
 
-stl_object *stl_read(int fd) {
+stl_facet *stl_read_facet(int fd) {
+		int rc = -1;
+		stl_facet *facet = (stl_facet*)calloc(1, sizeof(stl_facet));
+		check_mem(facet);
+
+		rc = read(fd, facet, sizeof(stl_facet));
+		check(rc == sizeof(stl_facet), "Failed to read facet. Size mismatch: read %d expected %zu", rc, sizeof(stl_facet));
+
+		return facet;
+error:
+		exit(-1);
+}
+
+stl_object *stl_read_object(int fd) {
 		int rc = -1;
 		char header[80] = {0};
 		uint32_t n_tris = 0;
@@ -72,7 +85,14 @@ stl_object *stl_read(int fd) {
 		obj = stl_alloc(header, n_tris);
 
 		for(uint32_t i = 0; i < obj->facet_count; i++) {
-				log_info("Reading triangle %d", i + 1);
+				log_info("Reading triangle %d/%d", i + 1, obj->facet_count);
+				stl_facet *facet = stl_read_facet(fd);
+				log_info(" N <%f, %f, %f>", facet->normal[0], facet->normal[1], facet->normal[2]);
+				log_info(" V1: (%f, %f, %f)", facet->vertices[0][0], facet->vertices[0][1], facet->vertices[0][2]);
+				log_info(" V2: (%f, %f, %f)", facet->vertices[1][0], facet->vertices[1][1], facet->vertices[1][2]);
+				log_info(" V3: (%f, %f, %f)", facet->vertices[2][0], facet->vertices[2][1], facet->vertices[2][2]);
+				memcpy(&obj->facets[i], facet, sizeof(stl_facet));
+				free(facet);
 		}
 
 		return obj;
@@ -86,7 +106,7 @@ stl_object *stl_read_file(char *path) {
 		int fd = open(path, O_RDONLY);
 		check(fd != -1, "Unable to open '%s'", path);
 
-		obj = stl_read(fd);
+		obj = stl_read_object(fd);
 		close(fd);
 
 		return obj;
