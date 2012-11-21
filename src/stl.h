@@ -31,4 +31,9 @@ stl_facet *stl_read_facet(int fd);
 stl_object *stl_read_object(int fd);
 stl_object *stl_read_file(char *path);
 
+// Binary file writers
+int stl_write_file(stl_object *obj, char *path);
+int stl_write_object(stl_object *obj, int fd);
+int stl_write_facet(stl_facet *facet, int fd);
+
 #endif

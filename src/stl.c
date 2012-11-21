@@ -15,6 +15,10 @@ stl_object *stl_alloc(char *header, uint32_t n_facets) {
 		check_mem(obj);
 		bzero(obj, sizeof(stl_object));
 
+		if(header != NULL) {
+				memcpy(obj->header, header, sizeof(obj->header));
+		}
+
 		obj->facet_count = n_facets;
 		if(n_facets > 0) {
 				obj->facets = (stl_facet*)calloc(n_facets, sizeof(stl_facet));
@@ -94,4 +98,50 @@ error:
 		if(fd != -1) close(fd);
 		if(obj) stl_free(obj);
 		return NULL;
+}
+
+int stl_write_file(stl_object *obj, char *path) {
+		int rc = -1;
+		int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0755);
+		check(fd != -1, "Failed to open '%s' for write", path);
+
+		rc = stl_write_object(obj, fd);
+
+		close(fd);
+		return rc;
+error:
+		if(fd != -1) close(fd);
+		return -1;
+}
+
+int stl_write_object(stl_object *obj, int fd) {
+		int rc = -1;
+
+		rc = write(fd, obj->header, sizeof(obj->header));
+		check(rc == sizeof(obj->header), "Failed to write object header");
+
+		rc = write(fd, &obj->facet_count, sizeof(obj->facet_count));
+		check(rc == sizeof(obj->facet_count), "Failed to write face count");
+
+		for(uint32_t i = 0; i < obj->facet_count; i++) {
+				rc = stl_write_facet(&obj->facets[i], fd);
+				check(rc == 0, "Failed to write facet %d", i);
+		}
+
+		return 0;
+error:
+		return -1;
+}
+
+int stl_write_facet(stl_facet *facet, int fd) {
+		// Pre-computed size since sizeof(struct) falls to padding problems for IO
+		const size_t facet_size = sizeof(facet->normal) + sizeof(facet->vertices) + sizeof(facet->attr);
+		int rc = -1;
+
+		rc = write(fd, facet, facet_size);
+		check(rc == facet_size, "Failed to write facet struct");
+
+		return 0;
+error:
+		return -1;
 }

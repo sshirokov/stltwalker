@@ -21,6 +21,7 @@ void usage(int argc, char **argv, char *err) {
 }
 
 int main(int argc, char *argv[]) {
+		int rc = -1;
 		stl_object *obj = NULL;
 		char *infile = argv[1];
 
@@ -30,6 +31,10 @@ int main(int argc, char *argv[]) {
 		check(obj != NULL, "Failed to read '%s'", infile);
 
 		log_info("Parsed object with %d triangles!", obj->facet_count);
+
+		rc = stl_write_file(obj, "/tmp/out.stl");
+		check(rc != -1, "Failed to write file.");
+
 		stl_free(obj);
 
 		return 0;
