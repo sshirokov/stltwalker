@@ -7,7 +7,8 @@
 #include "stl.h"
 
 void stl_free(stl_object *obj) {
-		log_err("TODO: stl_free() is a stub.");
+		if(obj == NULL) return;
+		log_err("TODO: stl_free() is a stub. obj=>%p", obj);
 }
 
 stl_object *stl_alloc(char *header, uint32_t n_facets) {

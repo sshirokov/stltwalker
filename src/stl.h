@@ -1,12 +1,13 @@
 #include <unistd.h>
 #include <stdint.h>
 
+#include "klist.h"
+
 #ifndef __STL_H
 #define __STL_H
 
 // Wrappers
 typedef float float3[3];
-
 
 // File format structs
 typedef struct s_stl_facet {
@@ -35,5 +36,9 @@ stl_object *stl_read_file(char *path);
 int stl_write_file(stl_object *obj, char *path);
 int stl_write_object(stl_object *obj, int fd);
 int stl_write_facet(stl_facet *facet, int fd);
+
+// Composite wrappers
+#define mp_stl_free(x) stl_free(kl_val(x))
+KLIST_INIT(stl_object, stl_object*, mp_stl_free)
 
 #endif
