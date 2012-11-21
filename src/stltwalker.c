@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "dbg.h"
 
@@ -23,10 +24,12 @@ void usage(int argc, char **argv, char *err) {
 
 typedef float float3[3];
 
-typedef struct s_stl_triangle {
+typedef struct s_stl_facet {
 		float3 normal;
 		float3 vertices[3];
+		uint16_t attr;
 } stl_facet;
+
 
 typedef struct s_stl_object {
 		char header[80];
@@ -59,8 +62,12 @@ stl_facet *stl_read_facet(int fd) {
 		stl_facet *facet = (stl_facet*)calloc(1, sizeof(stl_facet));
 		check_mem(facet);
 
-		rc = read(fd, facet, sizeof(stl_facet));
-		check(rc == sizeof(stl_facet), "Failed to read facet. Size mismatch: read %d expected %zu", rc, sizeof(stl_facet));
+		rc = read(fd, &facet->normal, sizeof(facet->normal));
+		check(rc == sizeof(facet->normal), "Failed to read normal. Read %d expected %zu", rc, sizeof(facet->normal));
+		rc = read(fd, &facet->vertices, sizeof(facet->vertices));
+		check(rc == sizeof(facet->vertices), "Failed to read triangle vertecies. Read %d expected %zu", rc, sizeof(facet->vertices));
+		rc = read(fd, &facet->attr, sizeof(facet->attr));
+		check(rc == sizeof(facet->attr), "Failed to read attr bytes. Read %d expect %zu", rc, sizeof(facet->attr));
 
 		return facet;
 error:
@@ -85,12 +92,12 @@ stl_object *stl_read_object(int fd) {
 		obj = stl_alloc(header, n_tris);
 
 		for(uint32_t i = 0; i < obj->facet_count; i++) {
-				log_info("Reading triangle %d/%d", i + 1, obj->facet_count);
+				//log_info("Reading triangle %d/%d", i + 1, obj->facet_count);
 				stl_facet *facet = stl_read_facet(fd);
-				log_info(" N <%f, %f, %f>", facet->normal[0], facet->normal[1], facet->normal[2]);
-				log_info(" V1: (%f, %f, %f)", facet->vertices[0][0], facet->vertices[0][1], facet->vertices[0][2]);
-				log_info(" V2: (%f, %f, %f)", facet->vertices[1][0], facet->vertices[1][1], facet->vertices[1][2]);
-				log_info(" V3: (%f, %f, %f)", facet->vertices[2][0], facet->vertices[2][1], facet->vertices[2][2]);
+				/* log_info(" N <%f, %f, %f>", facet->normal[0], facet->normal[1], facet->normal[2]); */
+				/* log_info(" V1: (%f, %f, %f)", facet->vertices[0][0], facet->vertices[0][1], facet->vertices[0][2]); */
+				/* log_info(" V2: (%f, %f, %f)", facet->vertices[1][0], facet->vertices[1][1], facet->vertices[1][2]); */
+				/* log_info(" V3: (%f, %f, %f)", facet->vertices[2][0], facet->vertices[2][1], facet->vertices[2][2]); */
 				memcpy(&obj->facets[i], facet, sizeof(stl_facet));
 				free(facet);
 		}
@@ -107,6 +114,10 @@ stl_object *stl_read_file(char *path) {
 		check(fd != -1, "Unable to open '%s'", path);
 
 		obj = stl_read_object(fd);
+
+		char buffer[10];
+		int rc = read(fd, buffer, sizeof(buffer));
+		check(rc == 0, "File did not end when expected, assuming failure.");
 		close(fd);
 
 		return obj;
