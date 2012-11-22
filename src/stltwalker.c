@@ -7,6 +7,7 @@
 #include "dbg.h"
 
 #include "stl.h"
+#include "transform.h"
 
 const char *Version[] = {"0", "0", "0"};
 
@@ -39,12 +40,11 @@ error:
 int main(int argc, char *argv[]) {
 		if(argc < 2) usage(argc, argv, "Not enough arguments.");
 
-		klist_t(stl_object) *in_objects = kl_init(stl_object);
-		stl_object *latest = NULL;
+		klist_t(transformer) *in_objects = kl_init(transformer);
+		stl_transformer *latest = NULL;
 		char *out_file = NULL;
 
 		char opt;
-		int rc = -1;
 		int i = 1;
 		for(char *arg = argv[i]; i < argc; arg=argv[++i]) {
 				// Transforms
@@ -66,16 +66,17 @@ int main(int argc, char *argv[]) {
 
 				// Input loading
 				else {
-						latest = stl_read_file(arg);
-						check(latest != NULL, "Failed to load input from '%s'", arg);
-						*kl_pushp(stl_object, in_objects) = latest;
+						latest = transformer_alloc(stl_read_file(arg));
+						check(latest != NULL, "Failed to create transformer");
+						check(latest->object != NULL, "Failed to load object from '%s'", arg);
+						*kl_pushp(transformer, in_objects) = latest;
 						log_info("Loaded: %s", arg);
 				}
 		}
 
-		kl_destroy(stl_object, in_objects);
+		kl_destroy(transformer, in_objects);
 		return 0;
 error:
-		kl_destroy(stl_object, in_objects);
+		kl_destroy(transformer, in_objects);
 		return -1;
 }
