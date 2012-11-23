@@ -39,22 +39,16 @@ error:
 
 int main(int argc, char *argv[]) {
 		if(argc < 2) usage(argc, argv, "Not enough arguments.");
+		int rc = -1;
 
-		// Any objects we load from the command line get
-		// pushed here as transformers
 		klist_t(transformer) *in_objects = kl_init(transformer);
-
-		// The objects will be accumilated in this transformer
-		// and if specified, the output file will be stored in
-		// `out_file`
 		stl_transformer *out = transformer_alloc(NULL);
 		char *out_file = NULL;
-		check_mem(out);
+		stl_transformer *latest = NULL;
 
-		// Transformations are applied on the latest
-		// mentioned transformer wrapped object.
-		// At the beginning, this is the output object
-		stl_transformer *latest = out;
+		// Transforms before input specifications
+		// will chain on the resulting object
+		check_mem(latest = out);
 
 		// Read options, load files, chain transforms
 		char opt;
@@ -87,6 +81,8 @@ int main(int argc, char *argv[]) {
 				}
 		}
 
+		// Transform each object and count the total
+		// facets for the output
 		kliter_t(transformer) *tl_iter = NULL;
 		uint32_t total_facets = 0;
 		for(tl_iter = kl_begin(in_objects); tl_iter != kl_end(in_objects); tl_iter = kl_next(tl_iter)) {
@@ -95,12 +91,19 @@ int main(int argc, char *argv[]) {
 				// TODO: Perform objcet transform
 				total_facets += object->facet_count;
 		}
-		// TODO: Accumilate all the objects in `out'
 		check(total_facets > 0, "%d facets in resulting model is insufficient.", total_facets);
+
+		// Compile and transform the output object
 		check_mem(out->object = stl_alloc(NULL, total_facets));
+		// TODO: Accumilate all the objects in `out'
 		log_info("Output contains %d facets", total_facets);
 		// TODO: Apply transformations out `out'
-		// TODO: Serialize `out' to `out_file' if `out_file' != NULL
+
+		// Perform the "result" operation
+		if(out_file != NULL) {
+				rc = stl_write_file(out->object, out_file);
+				check(rc == 0, "Failed to write output to %s" , out_file);
+		}
 
 		kl_destroy(transformer, in_objects);
 		return 0;
