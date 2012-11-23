@@ -56,7 +56,11 @@ int main(int argc, char *argv[]) {
 		for(char *arg = argv[i]; i < argc; arg=argv[++i]) {
 				// Transforms
 				if(strncmp(arg, "--", 2) == 0) {
-						log_info("Transform: %s", arg);
+						char t_name[256] = {0};
+						char t_args[256] = {0};
+						rc = sscanf(arg, "--%[^=]=%s", t_name, t_args);
+						check(rc >= 1, "Invalid transform spec '%s', format '--name=args'", arg);
+						log_info("Transform: %s(%s)", t_name, t_args);
 				}
 
 				// Options
