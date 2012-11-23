@@ -64,7 +64,6 @@ int main(int argc, char *argv[]) {
 						switch((opt = arg[1])) {
 						case 'o':
 								out_file = argv[++i];
-								log_info("Output to: '%s'", out_file);
 								break;
 						default:
 								usage(argc, argv, "Unknown option %c", opt);
@@ -101,6 +100,7 @@ int main(int argc, char *argv[]) {
 
 		// Perform the "result" operation
 		if(out_file != NULL) {
+				log_info("Writing result object to: '%s'", out_file);
 				rc = stl_write_file(out->object, out_file);
 				check(rc == 0, "Failed to write output to %s" , out_file);
 		}
