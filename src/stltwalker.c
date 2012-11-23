@@ -47,17 +47,14 @@ int main(int argc, char *argv[]) {
 		// The objects will be accumilated in this transformer
 		// and if specified, the output file will be stored in
 		// `out_file`
-		stl_transformer *out = transformer_alloc(stl_alloc(NULL, 0));
+		stl_transformer *out = transformer_alloc(NULL);
 		char *out_file = NULL;
+		check_mem(out);
 
 		// Transformations are applied on the latest
 		// mentioned transformer wrapped object.
 		// At the beginning, this is the output object
 		stl_transformer *latest = out;
-
-		// Did we fail already!?
-		check_mem(out);
-		check_mem(out->object);
 
 		// Read options, load files, chain transforms
 		char opt;
@@ -90,8 +87,18 @@ int main(int argc, char *argv[]) {
 				}
 		}
 
-		// TODO: Apply transofmrs on each object in `in_objects'
+		kliter_t(transformer) *tl_iter = NULL;
+		uint32_t total_facets = 0;
+		for(tl_iter = kl_begin(in_objects); tl_iter != kl_end(in_objects); tl_iter = kl_next(tl_iter)) {
+				stl_transformer *transformer = kl_val(tl_iter);
+				stl_object *object = transformer->object;
+				// TODO: Perform objcet transform
+				total_facets += object->facet_count;
+		}
 		// TODO: Accumilate all the objects in `out'
+		check(total_facets > 0, "%d facets in resulting model is insufficient.", total_facets);
+		check_mem(out->object = stl_alloc(NULL, total_facets));
+		log_info("Output contains %d facets", total_facets);
 		// TODO: Apply transformations out `out'
 		// TODO: Serialize `out' to `out_file' if `out_file' != NULL
 
