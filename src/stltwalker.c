@@ -40,10 +40,26 @@ error:
 int main(int argc, char *argv[]) {
 		if(argc < 2) usage(argc, argv, "Not enough arguments.");
 
+		// Any objects we load from the command line get
+		// pushed here as transformers
 		klist_t(transformer) *in_objects = kl_init(transformer);
-		stl_transformer *latest = NULL;
+
+		// The objects will be accumilated in this transformer
+		// and if specified, the output file will be stored in
+		// `out_file`
+		stl_transformer *out = transformer_alloc(stl_alloc(NULL, 0));
 		char *out_file = NULL;
 
+		// Transformations are applied on the latest
+		// mentioned transformer wrapped object.
+		// At the beginning, this is the output object
+		stl_transformer *latest = out;
+
+		// Did we fail already!?
+		check_mem(out);
+		check_mem(out->object);
+
+		// Read options, load files, chain transforms
 		char opt;
 		int i = 1;
 		for(char *arg = argv[i]; i < argc; arg=argv[++i]) {
@@ -73,6 +89,11 @@ int main(int argc, char *argv[]) {
 						log_info("Loaded: %s", arg);
 				}
 		}
+
+		// TODO: Apply transofmrs on each object in `in_objects'
+		// TODO: Accumilate all the objects in `out'
+		// TODO: Apply transformations out `out'
+		// TODO: Serialize `out' to `out_file' if `out_file' != NULL
 
 		kl_destroy(transformer, in_objects);
 		return 0;
