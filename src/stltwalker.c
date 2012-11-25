@@ -32,8 +32,20 @@ void usage(int argc, char **argv, char *err, ...) {
 		FILE *stream = stderr;
 		fprintf(stream, "%s [-options] {file0 [--operations]..}..{fileN [--operations]..}\n", argv[0]);
 		fprintf(stream, "\tv%s.%s.%s\n", Version[0], Version[1], Version[2]);
-
 		fprintf(stream, "\n");
+
+		fprintf(stream, "Options:\n");
+		fprintf(stream, "\t-h\tShow help\n");
+		fprintf(stream, "\t-o filename\tOutput the resulting composite object tp `filename'\n");
+		fprintf(stream, "\n");
+
+		fprintf(stream, "Transforms:\n");
+		for(transformer *t = (transformer*)transformers; t->name != NULL; t++) {
+				fprintf(stream, "\t--%s=<options>\t%s\n", t->name, t->description);
+		}
+		fprintf(stream, "\n");
+
+
 		if(err) {
 				char *e_fmt = calloc(strlen("[PADDING]error: ") + strlen(err), sizeof(char));
 				check_mem(e_fmt);
@@ -86,6 +98,8 @@ int main(int argc, char *argv[]) {
 						case 'o':
 								out_file = argv[++i];
 								break;
+						case 'h':
+								usage(argc, argv, NULL);
 						default:
 								usage(argc, argv, "Unknown option %c", opt);
 						}
