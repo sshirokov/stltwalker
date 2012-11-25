@@ -17,7 +17,8 @@ const char *Version[] = {"0", "0", "0"};
 
 struct Options {
 		enum {Collect} op;
-} options = {
+};
+struct Options options = {
 		.op = Collect
 };
 

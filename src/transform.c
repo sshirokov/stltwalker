@@ -21,3 +21,10 @@ stl_transformer *transformer_init(stl_transformer *t, stl_object *obj) {
 		memcpy(t->transform, Identity4x4, sizeof(float4x4));
 		return t;
 }
+
+void float3tofloat4x1(const float3 *v, float4x1 *m) {
+		(*m)[0][0] = (*v)[0];
+		(*m)[1][0] = (*v)[1];
+		(*m)[2][0] = (*v)[2];
+		(*m)[3][0] = 1.0f;
+}
