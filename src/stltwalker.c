@@ -9,7 +9,7 @@
 #include "stl.h"
 #include "transform.h"
 
-const char *Version[] = {"0", "0", "0"};
+const char *Version[] = {"0", "0", "1"};
 
 #ifndef PATH_MAX
 #define PATH_MAX 1024
