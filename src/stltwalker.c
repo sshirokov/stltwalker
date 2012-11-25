@@ -11,6 +11,21 @@
 
 const char *Version[] = {"0", "0", "0"};
 
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
+struct Options {
+		enum {Collect} op;
+} options = {
+		.op = Collect
+};
+
+
+/* struct Options options = { */
+/* 		.op = Collect */
+/* }; */
+
 void usage(int argc, char **argv, char *err, ...) {
 		va_list va;
 		FILE *stream = stderr;
@@ -32,20 +47,6 @@ void usage(int argc, char **argv, char *err, ...) {
 error:
 		exit(-1);
 }
-
-#ifndef PATH_MAX
-#define PATH_MAX 1024
-#endif
-
-typedef enum {Collect} ResultOperation;
-
-struct Options {
-		ResultOperation op;
-};
-
-struct Options options = {
-		.op = Collect
-};
 
 int main(int argc, char *argv[]) {
 		if(argc < 2) usage(argc, argv, "Not enough arguments.");
