@@ -66,12 +66,7 @@ stl_object *stl_read_object(int fd) {
 		obj = stl_alloc(header, n_tris);
 
 		for(uint32_t i = 0; i < obj->facet_count; i++) {
-				//log_info("Reading triangle %d/%d", i + 1, obj->facet_count);
 				stl_facet *facet = stl_read_facet(fd);
-				/* log_info(" N <%f, %f, %f>", facet->normal[0], facet->normal[1], facet->normal[2]); */
-				/* log_info(" V1: (%f, %f, %f)", facet->vertices[0][0], facet->vertices[0][1], facet->vertices[0][2]); */
-				/* log_info(" V2: (%f, %f, %f)", facet->vertices[1][0], facet->vertices[1][1], facet->vertices[1][2]); */
-				/* log_info(" V3: (%f, %f, %f)", facet->vertices[2][0], facet->vertices[2][1], facet->vertices[2][2]); */
 				memcpy(&obj->facets[i], facet, sizeof(stl_facet));
 				free(facet);
 		}
