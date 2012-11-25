@@ -61,17 +61,19 @@ void float4x1tofloat3(const float4x1 *m, float3 *v) {
 }
 
 // Transform matrix initializers
+float4x4 *init_transform_scale_f(float4x4 *t, float scale) {
+		bzero(t, sizeof(float4x4));
+		(*t)[0][0] = (*t)[1][1] = (*t)[2][2] = scale;
+		(*t)[3][3] = 1.0;
+		return t;
+}
+
 float4x4 *init_transform_scale(float4x4 *t, char *args) {
 		float scale = 0.0;
 		int rc = sscanf(args, "%f", &scale);
 		if(args && strlen(args) > 0) check(rc == 1, "Invalid scale: '%s'", args);
 		if(args == NULL || strlen(args) == 0) check(rc == 1, "Scale requires an argument");
-
-		bzero(t, sizeof(float4x4));
-		(*t)[0][0] = (*t)[1][1] = (*t)[2][2] = scale;
-		(*t)[3][3] = 1.0;
-
-		return t;
+		return init_transform_scale_f(t, scale);
 error:
 		return NULL;
 }
