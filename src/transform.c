@@ -27,12 +27,9 @@ stl_transformer *transformer_init(stl_transformer *t, stl_object *obj) {
 int transform_scale(float4x4 *t, char *args) {
 		float scale = 0.0;
 		int rc = sscanf(args, "%f", &scale);
-		if(args && strlen(args) > 0) {
-				check(rc == 1, "Invalid scale: '%s'", args);
-		}
-		else {
-				check(rc == 1, "Scale requires an argument");
-		}
+		if(args && strlen(args) > 0) check(rc == 1, "Invalid scale: '%s'", args);
+		if(args == NULL || strlen(args) == 0) check(rc == 1, "Scale requires an argument");
+
 
 		bzero(t, sizeof(float4x4));
 		(*t)[0][0] = (*t)[1][1] = (*t)[2][2] = scale;
