@@ -40,6 +40,7 @@ void transform_apply(stl_transformer *t) {
 						float3tofloat4x1(&facet->vertices[v], &initial);
 						mult_4x1f(&result, t->transform, initial);
 						float4x1tofloat3(&result, &facet->vertices[v]);
+						stl_facet_update_normal(facet);
 				}
 		}
 		// Reset the transformation matrix

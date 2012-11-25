@@ -27,6 +27,9 @@ typedef struct s_stl_object {
 void stl_free(stl_object *obj);
 stl_object *stl_alloc(char *header, uint32_t n_facets);
 
+// Operations
+void stl_facet_update_normal(stl_facet *facet);
+
 // Binary file readers
 stl_facet *stl_read_facet(int fd);
 stl_object *stl_read_object(int fd);
