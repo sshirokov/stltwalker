@@ -19,4 +19,20 @@ stl_transformer *transformer_init(stl_transformer *t, stl_object *obj);
 #define mp_transformer_free(x) transformer_free(kl_val(x))
 KLIST_INIT(transformer, stl_transformer*, mp_transformer_free)
 
+// Conversion helpers
+void float3tofloat4x1(const float3 *v, float4x1 *m);
+void float4x1tofloat3(const float4x1 *m, float3 *v);
+
+// Available transforms definition
+typedef int (*transform_t)(float4x4 *t, char *args);
+typedef struct s_transformer {
+		char *name;
+		char *description;
+		transform_t fun;
+} transformer;
+
+extern const transformer transformers[];
+transform_t *transform_find(const char *name);
+
+
 #endif
