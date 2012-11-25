@@ -30,6 +30,22 @@ void transform_chain(stl_transformer *t, float4x4 transform) {
 		mult_4x4f(&t->transform, current, transform);
 }
 
+void transform_apply(stl_transformer *t) {
+		for(int f = 0; f < t->object->facet_count; f++) {
+				stl_facet *facet = t->object->facets + f;
+				for(int v = 0; v < 3; v++) {
+						float4x1 initial, result;
+						float3tofloat4x1(&facet->vertices[v], &initial);
+						mult_4x1f(&result, t->transform, initial);
+						float4x1tofloat3(&result, &facet->vertices[v]);
+				}
+		}
+		// Reset the transformation matrix
+		// so that later invokations don't
+		// apply the same transofm we just finished applying
+		memcpy(t->transform, Identity4x4, sizeof(float4x4));
+}
+
 // Conversion helpers
 void float3tofloat4x1(const float3 *v, float4x1 *m) {
 		(*m)[0][0] = (*v)[0];
@@ -66,8 +82,8 @@ const transformer transformers[] = {
 		{NULL, NULL, NULL}
 };
 
-transform_t *transform_find(const char *name) {
-		for(transformer *t = transformers; t->name != NULL; t++) {
+transform_t transform_find(const char *name) {
+		for(transformer *t = (transformer*)transformers; t->name != NULL; t++) {
 				if(0 == strncmp(t->name, name,
 								strlen(name) < strlen(t->name) ? strlen(name) : strlen(t->name)))
 						return t->fun;
