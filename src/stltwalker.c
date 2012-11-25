@@ -36,7 +36,7 @@ void usage(int argc, char **argv, char *err, ...) {
 
 		fprintf(stream, "Options:\n");
 		fprintf(stream, "\t-h\tShow help\n");
-		fprintf(stream, "\t-o filename\tOutput the resulting composite object tp `filename'\n");
+		fprintf(stream, "\t-o filename\tOutput the resulting composite object to `filename'\n");
 		fprintf(stream, "\n");
 
 		fprintf(stream, "Transforms:\n");
