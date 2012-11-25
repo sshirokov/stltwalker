@@ -13,9 +13,8 @@ void stl_free(stl_object *obj) {
 }
 
 stl_object *stl_alloc(char *header, uint32_t n_facets) {
-		stl_object *obj = (stl_object*)malloc(sizeof(stl_object));
+		stl_object *obj = (stl_object*)calloc(1, sizeof(stl_object));
 		check_mem(obj);
-		bzero(obj, sizeof(stl_object));
 
 		if(header != NULL) {
 				memcpy(obj->header, header, sizeof(obj->header));
