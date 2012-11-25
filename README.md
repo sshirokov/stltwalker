@@ -10,6 +10,8 @@ $ make
 $ ./stltwalker -h
 ```
 
+## Eyedropping Demo With Special Effects
+
 For a quick compositing demo try:
 
 ```bash
