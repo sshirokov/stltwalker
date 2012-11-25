@@ -126,18 +126,38 @@ error:
 		return NULL;
 }
 
+float4x4 *init_transform_rotateZ_f(float4x4 *t, float deg) {
+		float rad = deg2rad(deg);
+		bzero(t, sizeof(float4x4));
+		(*t)[2][2] = (*t)[3][3] = 1;
+		(*t)[0][0] = (*t)[1][1] = cos(rad);
+		(*t)[1][0] = sin(rad);
+		(*t)[0][1] = -(*t)[1][0];
+		return t;
+}
+
+float4x4 *init_transform_rotateZ(float4x4 *t, char *args) {
+		float theta = 0.0;
+		int rc = sscanf(args, "%f", &theta);
+		if(args && strlen(args) > 0) check(rc == 1, "Invalid angle: '%s'", args);
+		if(args == NULL || strlen(args) == 0) check(rc == 1, "Rotation requires an argument");
+		return init_transform_rotateZ_f(t, theta);
+error:
+		return NULL;
+}
+
 // Transformer listing
 const transformer transformers[] = {
 		{"scale",   "Scale the model by a constant factor", init_transform_scale},
 		{"rotateX", "Rotate the model around the X axis (degrees)", init_transform_rotateX},
 		{"rotateY", "Rotate the model around the Y axis (degrees)", init_transform_rotateY},
+		{"rotateZ", "Rotate the model around the Z axis (degrees)", init_transform_rotateZ},
 		{NULL, NULL, NULL}
 };
 
 transform_t transform_find(const char *name) {
 		for(transformer *t = (transformer*)transformers; t->name != NULL; t++) {
-				if(0 == strncmp(t->name, name,
-								strlen(name) < strlen(t->name) ? strlen(name) : strlen(t->name)))
+				if(0 == strcmp(t->name, name))
 						return t->fun;
 		}
 		return NULL;
