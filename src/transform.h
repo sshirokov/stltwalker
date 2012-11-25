@@ -4,6 +4,8 @@
 #ifndef __TRANSFORM_H
 #define __TRANSFORM_H
 
+#define PI 3.1415926
+
 typedef struct s_stl_transformer {
 		stl_object *object;
 
@@ -34,6 +36,8 @@ typedef struct s_transformer {
 		transform_t fun;
 } transformer;
 
+// The UI searches for transforms by name from this list.
+// The last element is a NULL'd out `transformer'
 extern const transformer transformers[];
 transform_t transform_find(const char *name);
 

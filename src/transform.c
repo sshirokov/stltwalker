@@ -49,8 +49,6 @@ void transform_apply(stl_transformer *t) {
 }
 
 // Conversion helpers
-#define PI 3.1415926
-
 float deg2rad(float deg) {
 		return deg * (PI / 180.0);
 }
