@@ -76,7 +76,8 @@ int main(int argc, char *argv[]) {
 						float4x4 transform_mat;
 						transform_t transform = transform_find(t_name);
 						check(transform != NULL, "Unknown transform %s", t_name);
-						transform(&transform_mat, t_args);
+						check(transform(&transform_mat, t_args) != NULL, "Failed to build transform %s(%s)", t_name, t_args);
+						transform_chain(latest, transform_mat);
 				}
 
 				// Options

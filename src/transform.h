@@ -15,6 +15,8 @@ void transformer_free(stl_transformer *t);
 
 stl_transformer *transformer_init(stl_transformer *t, stl_object *obj);
 
+void transform_chain(stl_transformer *t, float4x4 transform);
+
 // Composite wrappers
 #define mp_transformer_free(x) transformer_free(kl_val(x))
 KLIST_INIT(transformer, stl_transformer*, mp_transformer_free)

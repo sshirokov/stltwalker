@@ -1,5 +1,6 @@
 #include "dbg.h"
 
+#include "matrix.h"
 #include "transform.h"
 
 // Object transform containers
@@ -21,6 +22,12 @@ stl_transformer *transformer_init(stl_transformer *t, stl_object *obj) {
 		t->object = obj;
 		memcpy(t->transform, Identity4x4, sizeof(float4x4));
 		return t;
+}
+
+void transform_chain(stl_transformer *t, float4x4 transform) {
+		float4x4 current;
+		memcpy(current, t->transform, sizeof(float4x4));
+		mult_4x4f(&t->transform, current, transform);
 }
 
 // Conversion helpers
