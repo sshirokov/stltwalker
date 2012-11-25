@@ -107,9 +107,8 @@ int main(int argc, char *argv[]) {
 		uint32_t total_facets = 0;
 		for(tl_iter = kl_begin(in_objects); tl_iter != kl_end(in_objects); tl_iter = kl_next(tl_iter)) {
 				stl_transformer *transformer = kl_val(tl_iter);
-				stl_object *object = transformer->object;
-				// TODO: Perform objcet transform
-				total_facets += object->facet_count;
+				transform_apply(transformer);
+				total_facets += transformer->object->facet_count;
 		}
 		check(total_facets > 0, "%d facets in resulting model is insufficient.", total_facets);
 
