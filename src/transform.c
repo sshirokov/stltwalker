@@ -30,7 +30,6 @@ int transform_scale(float4x4 *t, char *args) {
 		if(args && strlen(args) > 0) check(rc == 1, "Invalid scale: '%s'", args);
 		if(args == NULL || strlen(args) == 0) check(rc == 1, "Scale requires an argument");
 
-
 		bzero(t, sizeof(float4x4));
 		(*t)[0][0] = (*t)[1][1] = (*t)[2][2] = scale;
 		(*t)[3][3] = 1.0;
