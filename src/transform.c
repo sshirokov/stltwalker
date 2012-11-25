@@ -146,12 +146,32 @@ error:
 		return NULL;
 }
 
+float4x4 *init_transform_translate_f(float4x4 *t, float3 v) {
+		bzero(t, sizeof(float4x4));
+		(*t)[0][0] = (*t)[1][1] = (*t)[2][2] = (*t)[3][3] = 1;
+		(*t)[0][3] = v[0];
+		(*t)[1][3] = v[1];
+		(*t)[2][3] = v[2];
+		return t;
+}
+
+float4x4 *init_transform_translate(float4x4 *t, char *args) {
+		float3 v = {0.0, 0.0, 0.0};
+		int rc = sscanf(args, "%f,%f,%f", &v[0], &v[1], &v[2]);
+		if(args && strlen(args) < strlen("0,0,0")) check(rc == 3, "Invalid 3D Vector: '%s'", args);
+		if(args == NULL || strlen(args) == 0) check(rc == 3, "Translation requires a 3D (x,y,z) Vector argument.");
+		return init_transform_translate_f(t, v);
+error:
+		return NULL;
+}
+
 // Transformer listing
 const transformer transformers[] = {
-		{"scale",   "Scale the model by a constant factor", init_transform_scale},
-		{"rotateX", "Rotate the model around the X axis (degrees)", init_transform_rotateX},
-		{"rotateY", "Rotate the model around the Y axis (degrees)", init_transform_rotateY},
-		{"rotateZ", "Rotate the model around the Z axis (degrees)", init_transform_rotateZ},
+		{"scale",     "Scale the model by a constant factor", init_transform_scale},
+		{"rotateX",   "Rotate the model around the X axis (degrees)", init_transform_rotateX},
+		{"rotateY",   "Rotate the model around the Y axis (degrees)", init_transform_rotateY},
+		{"rotateZ",   "Rotate the model around the Z axis (degrees)", init_transform_rotateZ},
+		{"translate", "Translate the model along a vector <X,Y,Z>", init_transform_translate},
 		{NULL, NULL, NULL}
 };
 
