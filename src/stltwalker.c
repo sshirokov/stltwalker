@@ -37,6 +37,16 @@ error:
 #define PATH_MAX 1024
 #endif
 
+typedef enum {Collect} ResultOperation;
+
+struct Options {
+		ResultOperation op;
+};
+
+struct Options options = {
+		.op = Collect
+};
+
 int main(int argc, char *argv[]) {
 		if(argc < 2) usage(argc, argv, "Not enough arguments.");
 		int rc = -1;
@@ -98,7 +108,22 @@ int main(int argc, char *argv[]) {
 
 		// Compile and transform the output object
 		check_mem(out->object = stl_alloc(NULL, total_facets));
-		// TODO: Accumilate all the objects in `out'
+		switch(options.op) {
+		case Collect: {
+				int collected = 0;
+				for(tl_iter = kl_begin(in_objects); tl_iter != kl_end(in_objects); tl_iter = kl_next(tl_iter)) {
+						stl_transformer *transformer = kl_val(tl_iter);
+						stl_object *object = transformer->object;
+						memcpy(out->object->facets + collected,
+							   object->facets,
+							   sizeof(stl_facet) * object->facet_count);
+						collected += object->facet_count;
+				}
+				break;
+		}
+		default:
+				sentinel("Unknown operation %d", options.op);
+		}
 		log_info("Output contains %d facets", total_facets);
 		// TODO: Apply transformations out `out'
 
