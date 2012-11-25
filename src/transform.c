@@ -23,22 +23,6 @@ stl_transformer *transformer_init(stl_transformer *t, stl_object *obj) {
 		return t;
 }
 
-// Transform initializers
-int transform_scale(float4x4 *t, char *args) {
-		float scale = 0.0;
-		int rc = sscanf(args, "%f", &scale);
-		if(args && strlen(args) > 0) check(rc == 1, "Invalid scale: '%s'", args);
-		if(args == NULL || strlen(args) == 0) check(rc == 1, "Scale requires an argument");
-
-		bzero(t, sizeof(float4x4));
-		(*t)[0][0] = (*t)[1][1] = (*t)[2][2] = scale;
-		(*t)[3][3] = 1.0;
-
-		return 0;
-error:
-		return -1;
-}
-
 // Conversion helpers
 void float3tofloat4x1(const float3 *v, float4x1 *m) {
 		(*m)[0][0] = (*v)[0];
@@ -53,9 +37,25 @@ void float4x1tofloat3(const float4x1 *m, float3 *v) {
 		(*v)[2] = (*m)[2][0];
 }
 
+// Transform matrix initializers
+float4x4 *init_transform_scale(float4x4 *t, char *args) {
+		float scale = 0.0;
+		int rc = sscanf(args, "%f", &scale);
+		if(args && strlen(args) > 0) check(rc == 1, "Invalid scale: '%s'", args);
+		if(args == NULL || strlen(args) == 0) check(rc == 1, "Scale requires an argument");
+
+		bzero(t, sizeof(float4x4));
+		(*t)[0][0] = (*t)[1][1] = (*t)[2][2] = scale;
+		(*t)[3][3] = 1.0;
+
+		return t;
+error:
+		return NULL;
+}
+
 // Transformer listing
 const transformer transformers[] = {
-		{"scale", "Scale the model by a constant factor", transform_scale},
+		{"scale", "Scale the model by a constant factor", init_transform_scale},
 		{NULL, NULL, NULL}
 };
 

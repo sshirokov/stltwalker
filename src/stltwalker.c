@@ -73,8 +73,8 @@ int main(int argc, char *argv[]) {
 						rc = sscanf(arg, "--%[^=]=%s", t_name, t_args);
 						check(rc >= 1, "Invalid transform spec '%s', format '--name=args'", arg);
 
-						transform_t transform = transform_find(t_name);
 						float4x4 transform_mat;
+						transform_t transform = transform_find(t_name);
 						check(transform != NULL, "Unknown transform %s", t_name);
 						transform(&transform_mat, t_args);
 				}

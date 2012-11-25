@@ -24,7 +24,7 @@ void float3tofloat4x1(const float3 *v, float4x1 *m);
 void float4x1tofloat3(const float4x1 *m, float3 *v);
 
 // Available transforms definition
-typedef int (*transform_t)(float4x4 *t, char *args);
+typedef float4x4* (*transform_t)(float4x4 *t, char *args);
 typedef struct s_transformer {
 		char *name;
 		char *description;
