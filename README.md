@@ -10,7 +10,7 @@ $ make
 $ ./stltwalker -h
 ```
 
-For a quick compositing demo try
+For a quick compositing demo try:
 
 ```bash
 $ ./stltwalker data/jaws.stl --rotateZ=10                      \
