@@ -5,6 +5,7 @@
 #define __TRANSFORM_H
 
 #define PI 3.1415926
+#define INF (-log(0))
 
 typedef struct s_stl_transformer {
 		stl_object *object;
@@ -35,6 +36,9 @@ typedef struct s_transformer {
 		char *description;
 		transform_t fun;
 } transformer;
+
+// Numerical versions of transformer assemblers
+float4x4 *init_transform_translate_f(float4x4 *t, float3 v);
 
 // The UI searches for transforms by name from this list.
 // The last element is a NULL'd out `transformer'

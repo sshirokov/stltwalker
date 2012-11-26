@@ -9,4 +9,6 @@
 
 int object_bounds(stl_object *obj, float3 *min, float3 *max);
 
+void transform_chain_zero_z(stl_transformer *t);
+
 #endif
