@@ -8,6 +8,7 @@
 
 #include "stl.h"
 #include "transform.h"
+#include "pack.h"
 
 const char *Version[] = {"0", "0", "2"};
 
@@ -136,7 +137,15 @@ int main(int argc, char *argv[]) {
 				sentinel("Unknown operation %d", options.op);
 		}
 		log_info("Output contains %d facets", total_facets);
-		// TODO: Apply transformations out `out'
+
+
+		float3 bounds[2] = {FLOAT3_INIT, FLOAT3_INIT};
+		object_bounds(options.out.object, &bounds[0], &bounds[1]);
+		log_info("Object bounds: m(%f, %f, %f) M(%f, %f, %f)", FLOAT3_FORMAT(bounds[0]), FLOAT3_FORMAT(bounds[1]));
+
+
+		// Apply transformations to the result
+		transform_apply(&options.out);
 
 		// Perform the "result" operation
 		if(options.out_file != NULL) {
