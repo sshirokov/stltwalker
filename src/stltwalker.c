@@ -9,23 +9,18 @@
 #include "stl.h"
 #include "transform.h"
 
-const char *Version[] = {"0", "0", "1"};
-
-#ifndef PATH_MAX
-#define PATH_MAX 1024
-#endif
+const char *Version[] = {"0", "0", "2"};
 
 struct Options {
 		enum {Collect} op;
+		stl_transformer out;
+		char *out_file;
 };
 struct Options options = {
-		.op = Collect
+		.op = Collect,
+		.out_file = NULL
 };
 
-
-/* struct Options options = { */
-/* 		.op = Collect */
-/* }; */
 
 void usage(int argc, char **argv, char *err, ...) {
 		va_list va;
@@ -66,13 +61,8 @@ int main(int argc, char *argv[]) {
 		int rc = -1;
 
 		klist_t(transformer) *in_objects = kl_init(transformer);
-		stl_transformer *out = transformer_alloc(NULL);
-		char *out_file = NULL;
-		stl_transformer *latest = NULL;
-
-		// Transforms before input specifications
-		// will chain on the resulting object
-		check_mem(latest = out);
+		transformer_init(&options.out, NULL);
+		stl_transformer *latest = &options.out;
 
 		// Read options, load files, chain transforms
 		char opt;
@@ -96,7 +86,8 @@ int main(int argc, char *argv[]) {
 				else if(arg[0] == '-' && strlen(arg) == 2) {
 						switch((opt = arg[1])) {
 						case 'o':
-								out_file = argv[++i];
+								latest = &options.out;
+								options.out_file = argv[++i];
 								break;
 						case 'h':
 								usage(argc, argv, NULL);
@@ -127,14 +118,14 @@ int main(int argc, char *argv[]) {
 		check(total_facets > 0, "%d facets in resulting model is insufficient.", total_facets);
 
 		// Compile and transform the output object
-		check_mem(out->object = stl_alloc(NULL, total_facets));
+		check_mem(options.out.object = stl_alloc(NULL, total_facets));
 		switch(options.op) {
 		case Collect: {
 				int collected = 0;
 				for(tl_iter = kl_begin(in_objects); tl_iter != kl_end(in_objects); tl_iter = kl_next(tl_iter)) {
 						stl_transformer *transformer = kl_val(tl_iter);
 						stl_object *object = transformer->object;
-						memcpy(out->object->facets + collected,
+						memcpy(options.out.object->facets + collected,
 							   object->facets,
 							   sizeof(stl_facet) * object->facet_count);
 						collected += object->facet_count;
@@ -148,10 +139,10 @@ int main(int argc, char *argv[]) {
 		// TODO: Apply transformations out `out'
 
 		// Perform the "result" operation
-		if(out_file != NULL) {
-				log_info("Writing result object to: '%s'", out_file);
-				rc = stl_write_file(out->object, out_file);
-				check(rc == 0, "Failed to write output to %s" , out_file);
+		if(options.out_file != NULL) {
+				log_info("Writing result object to: '%s'", options.out_file);
+				rc = stl_write_file(options.out.object, options.out_file);
+				check(rc == 0, "Failed to write output to %s" , options.out_file);
 		}
 
 		kl_destroy(transformer, in_objects);
