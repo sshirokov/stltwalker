@@ -4,6 +4,7 @@
 
 #include "matrix.h"
 #include "transform.h"
+#include "pack.h"
 
 // Object transform containers
 stl_transformer *transformer_alloc(stl_object *obj) {
@@ -47,6 +48,15 @@ void transform_apply(stl_transformer *t) {
 		// so that later invokations don't
 		// apply the same transofm we just finished applying
 		memcpy(t->transform, Identity4x4, sizeof(float4x4));
+}
+
+void object_transform_chain_zero_z(stl_transformer *t) {
+		float3 bounds[2] = {{INF, INF, INF}, {-INF, -INF, -INF}};
+		float3 v = FLOAT3_INIT;
+		float4x4 tr;
+		object_bounds(t->object, &bounds[0], &bounds[1]);
+		f3Z(v) = -f3Z(bounds[0]);
+		transform_chain(t, *init_transform_translate_f(&tr, v));
 }
 
 // Conversion helpers

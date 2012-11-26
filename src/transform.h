@@ -21,6 +21,9 @@ stl_transformer *transformer_init(stl_transformer *t, stl_object *obj);
 void transform_chain(stl_transformer *t, float4x4 transform);
 void transform_apply(stl_transformer *t);
 
+// Object transformations
+void object_transform_chain_zero_z(stl_transformer *t);
+
 // Composite wrappers
 #define mp_transformer_free(x) transformer_free(kl_val(x))
 KLIST_INIT(transformer, stl_transformer*, mp_transformer_free)
