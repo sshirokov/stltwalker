@@ -8,5 +8,6 @@
 #define MAXf(x, y) ((x) > (y) ? (x) : (y))
 
 int object_bounds(stl_object *obj, float3 *min, float3 *max);
+int object_center(stl_object *obj, float3 *center);
 
 #endif

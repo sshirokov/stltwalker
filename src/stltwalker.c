@@ -103,11 +103,6 @@ int main(int argc, char *argv[]) {
 						check(latest != NULL, "Failed to create transformer");
 						check(latest->object != NULL, "Failed to load object from '%s'", arg);
 
-						float3 b[2] = {FLOAT3_INIT, FLOAT3_INIT};
-						object_bounds(latest->object, &b[0], &b[1]);
-						log_info("%s bounds [before]: m(%f, %f, %f) M(%f, %f, %f)", arg, FLOAT3_FORMAT(b[0]), FLOAT3_FORMAT(b[1]));
-
-
 						// Center and +Z the object
 						object_transform_chain_zero_z(latest);
 						object_transform_chain_center_x(latest);
@@ -115,9 +110,11 @@ int main(int argc, char *argv[]) {
 						// Apply any potential chained object transforms
 						transform_apply(latest);
 
+						float3 b[2] = {FLOAT3_INIT, FLOAT3_INIT};
+						float3 c = FLOAT3_INIT_MAX;
 						object_bounds(latest->object, &b[0], &b[1]);
-						log_info("%s bounds [after]: m(%f, %f, %f) M(%f, %f, %f)", arg, FLOAT3_FORMAT(b[0]), FLOAT3_FORMAT(b[1]));
-
+						object_center(latest->object, &c);
+						log_info("%s center: (%f, %f, %f). Size: %fx%fx%f", arg, FLOAT3_FORMAT(c), f3X(b[1]) - f3X(b[0]), f3Y(b[1]) - f3Y(b[0]), f3Z(b[1]) - f3Z(b[0]));
 
 						*kl_pushp(transformer, in_objects) = latest;
 						log_info("Loaded: %s", arg);
@@ -156,18 +153,10 @@ int main(int argc, char *argv[]) {
 		log_info("Output contains %d facets", total_facets);
 
 
-		float3 bounds[2] = {FLOAT3_INIT, FLOAT3_INIT};
-		object_bounds(options.out.object, &bounds[0], &bounds[1]);
-		log_info("Object bounds [before]: m(%f, %f, %f) M(%f, %f, %f)", FLOAT3_FORMAT(bounds[0]), FLOAT3_FORMAT(bounds[1]));
-
-
 		// Apply transformations to the result
 		transform_apply(&options.out);
 
-		object_bounds(options.out.object, &bounds[0], &bounds[1]);
-		log_info("Object bounds [after]: m(%f, %f, %f) M(%f, %f, %f)", FLOAT3_FORMAT(bounds[0]), FLOAT3_FORMAT(bounds[1]));
-
-		// Perform the "result" operation
+ 		// Perform the "result" operation
 		if(options.out_file != NULL) {
 				log_info("Writing result object to: '%s'", options.out_file);
 				rc = stl_write_file(options.out.object, options.out_file);

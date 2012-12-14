@@ -52,5 +52,4 @@ float4x4 *init_transform_translate_f(float4x4 *t, float3 v);
 extern const transformer transformers[];
 transform_t transform_find(const char *name);
 
-
 #endif
