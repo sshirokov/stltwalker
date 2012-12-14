@@ -10,6 +10,11 @@
 int object_bounds(stl_object *obj, float3 *min, float3 *max) {
 		check(obj, "No object.");
 		check(obj->facet_count > 0, "No facets in object.");
+		const float3 f3Min = FLOAT3_INIT_MIN;
+		const float3 f3Max = FLOAT3_INIT_MAX;
+
+		memcpy(min, &f3Max, sizeof(float3));
+		memcpy(max, &f3Min, sizeof(float3));
 
 		for(int i = 0; i < obj->facet_count; i++) {
 				stl_facet *facet = &(obj->facets[i]);
