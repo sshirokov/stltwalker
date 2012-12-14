@@ -101,11 +101,14 @@ error:
 }
 
 stl_object *stl_read_file(char *path) {
+		stl_reader* reader = NULL;
 		stl_object *obj = NULL;
-		int fd = open(path, O_RDONLY);
-		check(fd != -1, "Unable to open '%s'", path);
+		int fd = -1;
 
-		obj = stl_read_object(fd);
+		check((reader = stl_detect_reader(path)), "Unable to find reader for format of %s", path);
+		check((fd = open(path, O_RDONLY)) != -1, "Unable to open '%s'", path);
+
+		obj = reader(fd);
 
 		char buffer[10];
 		int rc = read(fd, buffer, sizeof(buffer));
@@ -163,4 +166,13 @@ int stl_write_facet(stl_facet *facet, int fd) {
 		return 0;
 error:
 		return -1;
+}
+
+stl_reader* stl_detect_reader(char *path) {
+		stl_reader* reader = stl_read_object;
+		check(reader != NULL, "Cannot find reader for %s", path);
+
+		return reader;
+error:
+		return NULL;
 }

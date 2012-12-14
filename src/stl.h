@@ -38,6 +38,12 @@ stl_object *stl_alloc(char *header, uint32_t n_facets);
 // Operations
 void stl_facet_update_normal(stl_facet *facet);
 
+// Signatures of file readers
+typedef stl_object* (stl_reader)(int fd);
+
+// File reader factory
+stl_reader* stl_detect_reader(char *path);
+
 // Binary file readers
 stl_facet *stl_read_facet(int fd);
 stl_object *stl_read_object(int fd);
