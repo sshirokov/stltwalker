@@ -64,7 +64,8 @@ void object_transform_chain_center_x(stl_transformer *t) {
 		float3 v = FLOAT3_INIT;
 		float4x4 tr;
 		object_bounds(t->object, &bounds[0], &bounds[1]);
-		f3X(v) = -(f3X(bounds[1]) - f3X(bounds[0]));
+		f3X(v) = -((f3X(bounds[1]) + f3X(bounds[0])) / 2.0);
+		log_info("CenterX: <%f, %f, %f>", FLOAT3_FORMAT(v));
 		transform_chain(t, *init_transform_translate_f(&tr, v));
 }
 
@@ -73,7 +74,8 @@ void object_transform_chain_center_y(stl_transformer *t) {
 		float3 v = FLOAT3_INIT;
 		float4x4 tr;
 		object_bounds(t->object, &bounds[0], &bounds[1]);
-		f3Y(v) = -(f3Y(bounds[1]) - f3Y(bounds[0]));
+		f3Y(v) = -((f3Y(bounds[1]) + f3Y(bounds[0])) / 2.0);
+		log_info("CenterY: <%f, %f, %f>", FLOAT3_FORMAT(v));
 		transform_chain(t, *init_transform_translate_f(&tr, v));
 }
 

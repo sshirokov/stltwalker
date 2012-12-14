@@ -103,12 +103,21 @@ int main(int argc, char *argv[]) {
 						check(latest != NULL, "Failed to create transformer");
 						check(latest->object != NULL, "Failed to load object from '%s'", arg);
 
+						float3 b[2] = {FLOAT3_INIT, FLOAT3_INIT};
+						object_bounds(latest->object, &b[0], &b[1]);
+						log_info("%s bounds [before]: m(%f, %f, %f) M(%f, %f, %f)", arg, FLOAT3_FORMAT(b[0]), FLOAT3_FORMAT(b[1]));
+
+
 						// Center and +Z the object
 						object_transform_chain_zero_z(latest);
 						object_transform_chain_center_x(latest);
 						object_transform_chain_center_y(latest);
 						// Apply any potential chained object transforms
 						transform_apply(latest);
+
+						object_bounds(latest->object, &b[0], &b[1]);
+						log_info("%s bounds [after]: m(%f, %f, %f) M(%f, %f, %f)", arg, FLOAT3_FORMAT(b[0]), FLOAT3_FORMAT(b[1]));
+
 
 						*kl_pushp(transformer, in_objects) = latest;
 						log_info("Loaded: %s", arg);
