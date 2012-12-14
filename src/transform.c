@@ -68,6 +68,15 @@ void object_transform_chain_zero_x(stl_transformer *t) {
 		transform_chain(t, *init_transform_translate_f(&tr, v));
 }
 
+void object_transform_chain_zero_y(stl_transformer *t) {
+		float3 bounds[2] = {{INF, INF, INF}, {-INF, -INF, -INF}};
+		float3 v = FLOAT3_INIT;
+		float4x4 tr;
+		object_bounds(t->object, &bounds[0], &bounds[1]);
+		f3Y(v) = -f3Y(bounds[0]);
+		transform_chain(t, *init_transform_translate_f(&tr, v));
+}
+
 // Conversion helpers
 float deg2rad(float deg) {
 		return deg * (PI / 180.0);

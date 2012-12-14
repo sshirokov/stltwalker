@@ -24,6 +24,7 @@ void transform_apply(stl_transformer *t);
 // Object transformations
 void object_transform_chain_zero_z(stl_transformer *t);
 void object_transform_chain_zero_x(stl_transformer *t);
+void object_transform_chain_zero_y(stl_transformer *t);
 
 // Composite wrappers
 #define mp_transformer_free(x) transformer_free(kl_val(x))
