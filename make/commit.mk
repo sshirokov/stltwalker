@@ -3,4 +3,5 @@ CPPFLAGS = $(OPTCPPFLAGS)
 CFLAGS = -g -O2 $(INCLUDE) $(OPTFLAGS) -Wall -Werror
 LIBS = $(OPTLIBS) -lm
 
-$(OBJS): $(SOURCES)
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -c $^
