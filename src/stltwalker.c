@@ -102,6 +102,14 @@ int main(int argc, char *argv[]) {
 						latest = transformer_alloc(stl_read_file(arg));
 						check(latest != NULL, "Failed to create transformer");
 						check(latest->object != NULL, "Failed to load object from '%s'", arg);
+
+						// Center and +Z the object
+						object_transform_chain_zero_z(latest);
+						object_transform_chain_center_x(latest);
+						object_transform_chain_center_y(latest);
+						// Apply any potential chained object transforms
+						transform_apply(latest);
+
 						*kl_pushp(transformer, in_objects) = latest;
 						log_info("Loaded: %s", arg);
 				}
@@ -145,13 +153,6 @@ int main(int argc, char *argv[]) {
 
 
 		// Apply transformations to the result
-		transform_apply(&options.out);
-
-		log_info("Centering object and zeroing Z coordinate");
-		object_transform_chain_zero_z(&options.out);
-		object_transform_chain_center_x(&options.out);
-		object_transform_chain_center_y(&options.out);
-		// Apply any potential chained object transforms
 		transform_apply(&options.out);
 
 		object_bounds(options.out.object, &bounds[0], &bounds[1]);
