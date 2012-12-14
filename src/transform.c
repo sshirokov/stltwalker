@@ -59,7 +59,7 @@ void object_transform_chain_zero_z(stl_transformer *t) {
 		transform_chain(t, *init_transform_translate_f(&tr, v));
 }
 
-void object_transform_chain_zero_x(stl_transformer *t) {
+void object_transform_chain_center_x(stl_transformer *t) {
 		float3 bounds[2] = {{INF, INF, INF}, {-INF, -INF, -INF}};
 		float3 v = FLOAT3_INIT;
 		float4x4 tr;
@@ -68,7 +68,7 @@ void object_transform_chain_zero_x(stl_transformer *t) {
 		transform_chain(t, *init_transform_translate_f(&tr, v));
 }
 
-void object_transform_chain_zero_y(stl_transformer *t) {
+void object_transform_chain_center_y(stl_transformer *t) {
 		float3 bounds[2] = {{INF, INF, INF}, {-INF, -INF, -INF}};
 		float3 v = FLOAT3_INIT;
 		float4x4 tr;

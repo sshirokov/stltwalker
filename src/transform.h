@@ -23,8 +23,8 @@ void transform_apply(stl_transformer *t);
 
 // Object transformations
 void object_transform_chain_zero_z(stl_transformer *t);
-void object_transform_chain_zero_x(stl_transformer *t);
-void object_transform_chain_zero_y(stl_transformer *t);
+void object_transform_chain_center_x(stl_transformer *t);
+void object_transform_chain_center_y(stl_transformer *t);
 
 typedef void (*obj_transform_t)(stl_transformer *t);
 
