@@ -147,6 +147,7 @@ int main(int argc, char *argv[]) {
 		// Apply transformations to the result
 		transform_apply(&options.out);
 
+		log_info("Centering object and zeroing Z coordinate");
 		object_transform_chain_zero_z(&options.out);
 		object_transform_chain_center_x(&options.out);
 		object_transform_chain_center_y(&options.out);
