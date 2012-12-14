@@ -141,11 +141,20 @@ int main(int argc, char *argv[]) {
 
 		float3 bounds[2] = {FLOAT3_INIT, FLOAT3_INIT};
 		object_bounds(options.out.object, &bounds[0], &bounds[1]);
-		log_info("Object bounds: m(%f, %f, %f) M(%f, %f, %f)", FLOAT3_FORMAT(bounds[0]), FLOAT3_FORMAT(bounds[1]));
+		log_info("Object bounds [before]: m(%f, %f, %f) M(%f, %f, %f)", FLOAT3_FORMAT(bounds[0]), FLOAT3_FORMAT(bounds[1]));
 
 
 		// Apply transformations to the result
 		transform_apply(&options.out);
+
+		object_transform_chain_zero_z(&options.out);
+		object_transform_chain_center_x(&options.out);
+		object_transform_chain_center_y(&options.out);
+		// Apply any potential chained object transforms
+		transform_apply(&options.out);
+
+		object_bounds(options.out.object, &bounds[0], &bounds[1]);
+		log_info("Object bounds [after]: m(%f, %f, %f) M(%f, %f, %f)", FLOAT3_FORMAT(bounds[0]), FLOAT3_FORMAT(bounds[1]));
 
 		// Perform the "result" operation
 		if(options.out_file != NULL) {
