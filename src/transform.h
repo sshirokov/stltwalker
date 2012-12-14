@@ -26,6 +26,8 @@ void object_transform_chain_zero_z(stl_transformer *t);
 void object_transform_chain_zero_x(stl_transformer *t);
 void object_transform_chain_zero_y(stl_transformer *t);
 
+typedef void (*obj_transform_t)(stl_transformer *t);
+
 // Composite wrappers
 #define mp_transformer_free(x) transformer_free(kl_val(x))
 KLIST_INIT(transformer, stl_transformer*, mp_transformer_free)
