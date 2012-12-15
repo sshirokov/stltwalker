@@ -76,7 +76,7 @@ error:
  * Allocate, read, and return a anull terminated string from `fd'.
  * Return NULL in caes of error
  */
-char* read_line(int fd) {
+char* read_line(int fd, int downcase) {
 		int rc = -1;
 		char *buffer = NULL;
 		size_t size = 1024;
@@ -86,11 +86,17 @@ char* read_line(int fd) {
 		while((cur < size) && ((rc = read(fd, buffer + cur++, 1)) != -1)) {
 				int last = cur - 1;
 				check(rc != -1, "read_line(%d) failed", fd);
-				if((buffer[last] == '\n') || (rc == 0)) break;
+				if(downcase) buffer[last] = tolower(buffer[last]);
+				if(buffer[last] == '\n') break;
+				if(rc == 0) break;
 		}
 		check(cur < size, "BUG: Line exceeds allocated length of %zd in read_line(%d)", size, fd);
 
+		if((strlen(buffer) == 0) && (rc == 0)) goto eof;
+
 		return buffer;
+
+eof: /* "Deallocate and return NULL." Different label than error for clarity */
 error:
 		if(buffer != NULL) free(buffer);
 		return NULL;
@@ -98,10 +104,19 @@ error:
 
 stl_object *stl_read_text_object(int fd) {
 		stl_object *obj = NULL;
-		char *header = read_line(fd);
-		check(header != NULL, "Failed to read STL/ASCII header.");
+		char *line = read_line(fd, 0);
+		check(line != NULL, "Failed to read STL/ASCII header.");
 		check((obj = stl_alloc(NULL, 0)), "Failed to allocated new STL object.");
-		snprintf(obj->header, sizeof(obj->header), "[STL/ASCII]: '%s'", header);
+		snprintf(obj->header, sizeof(obj->header), "[STL/ASCII]: '%s'", line);
+		log_info("Header: [%s]", obj->header);
+		free(line);
+
+		size_t lines = 0;
+		while((line = read_line(fd, 1))) {
+				lines++;
+				log_info("Line: [%s]", line);
+				free(line);
+		}
 
 		return obj;
 error:
