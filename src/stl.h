@@ -41,13 +41,17 @@ void stl_facet_update_normal(stl_facet *facet);
 // Signatures of file readers
 typedef stl_object* (stl_reader)(int fd);
 
-// File reader factory
+// File reader factory and dispatcher
 stl_reader* stl_detect_reader(char *path);
+stl_object *stl_read_file(char *path);
 
 // Binary file readers
 stl_facet *stl_read_facet(int fd);
 stl_object *stl_read_object(int fd);
-stl_object *stl_read_file(char *path);
+
+// Text file readers
+stl_facet *stl_read_text_facet(int fd);
+stl_object *stl_read_text_object(int fd);
 
 // Binary file writers
 int stl_write_file(stl_object *obj, char *path);

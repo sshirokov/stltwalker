@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,6 +70,16 @@ stl_facet *stl_read_facet(int fd) {
 		return facet;
 error:
 		exit(-1);
+}
+
+stl_object *stl_read_text_object(int fd) {
+		int rc = -1;
+		stl_object *obj = NULL;
+
+
+		return obj;
+error:
+		return NULL;
 }
 
 stl_object *stl_read_object(int fd) {
@@ -169,10 +180,23 @@ error:
 }
 
 stl_reader* stl_detect_reader(char *path) {
-		stl_reader* reader = stl_read_object;
-		check(reader != NULL, "Cannot find reader for %s", path);
+		stl_reader* reader = stl_read_text_object;
+		static const int upto = 100;
+		char c = '\0';
+		int rc = -1;
+		int fd = open(path, O_RDONLY);
+		check(fd != -1, "Failed to open %s for format detection.", path);
+		for(int i = 0; i < upto; i++) {
+				check((rc = read(fd, &c, 1)) == 1, "Failed to read byte %d for reader detection of %s", i, path);
+				if(!isprint(c) && !isspace(c)) {
+						reader = stl_read_object;
+						break;
+				}
+		}
 
+		if(fd != -1) close(fd);
 		return reader;
 error:
+		if(fd != -1) close(fd);
 		return NULL;
 }
