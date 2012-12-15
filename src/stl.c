@@ -130,7 +130,15 @@ stl_object *stl_read_text_object(int fd) {
 		size_t lines = 0;
 		while((line = read_line(fd, 1, 1))) {
 				lines++;
-				log_info("Line: [%s]", line);
+				if(strncmp(line, "facet", strlen("facet")) == 0) {
+						log_info(" facet start");
+				}
+				else if(strncmp(line, "endsolid", strlen("endfacet")) == 0) {
+						log_info(" solid end");
+				}
+				else {
+						log_info("Line: [%s]", line);
+				}
 				free(line);
 		}
 
