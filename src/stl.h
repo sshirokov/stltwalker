@@ -61,5 +61,7 @@ int stl_write_facet(stl_facet *facet, int fd);
 // Composite wrappers
 #define mp_stl_free(x) stl_free(kl_val(x))
 KLIST_INIT(stl_object, stl_object*, mp_stl_free)
+#define mp_std_free(x) free(kl_val(x))
+KLIST_INIT(stl_facet, stl_facet*, mp_std_free)
 
 #endif
