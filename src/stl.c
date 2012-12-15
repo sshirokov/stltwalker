@@ -76,7 +76,7 @@ error:
  * Allocate, read, and return a anull terminated string from `fd'.
  * Return NULL in caes of error
  */
-char* read_line(int fd, int downcase) {
+char* read_line(int fd, int downcase, int trim) {
 		int rc = -1;
 		char *buffer = NULL;
 		size_t size = 1024;
@@ -94,6 +94,20 @@ char* read_line(int fd, int downcase) {
 
 		if((strlen(buffer) == 0) && (rc == 0)) goto eof;
 
+		if(trim) {
+				char *new = NULL;
+				int start = 0;
+				int end = cur;
+				while(isspace(buffer[start++]));
+				while(isspace(buffer[--end]));
+				if(start > 0) start--;
+				buffer[++end] = '\0';
+				check_mem((new = calloc(strlen(buffer + start), 1)));
+				memcpy(new, buffer + start, end - start);
+				free(buffer);
+				buffer = new;
+		}
+
 		return buffer;
 
 eof: /* "Deallocate and return NULL." Different label than error for clarity */
@@ -104,7 +118,7 @@ error:
 
 stl_object *stl_read_text_object(int fd) {
 		stl_object *obj = NULL;
-		char *line = read_line(fd, 0);
+		char *line = read_line(fd, 0, 1);
 		klist_t(stl_facet) *facets = kl_init(stl_facet);
 
 		check(line != NULL, "Failed to read STL/ASCII header.");
@@ -114,7 +128,7 @@ stl_object *stl_read_text_object(int fd) {
 		free(line);
 
 		size_t lines = 0;
-		while((line = read_line(fd, 1))) {
+		while((line = read_line(fd, 1, 1))) {
 				lines++;
 				log_info("Line: [%s]", line);
 				free(line);
