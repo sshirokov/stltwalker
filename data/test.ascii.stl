@@ -1,5 +1,5 @@
-solid cube_corner
-	facet normal 0.0 -50.0 0.0
+solid Cube_corner
+	faCet normal 0.0 -50.0 0.0
 		outer loop
 			vertex 0.0 0.0 0.0
 			vertex 50.0 0.0 0.0
