@@ -72,10 +72,36 @@ error:
 		exit(-1);
 }
 
-stl_object *stl_read_text_object(int fd) {
+/*
+ * Allocate, read, and return a anull terminated string from `fd'.
+ * Return NULL in caes of error
+ */
+char* read_line(int fd) {
 		int rc = -1;
-		stl_object *obj = NULL;
+		char *buffer = NULL;
+		size_t size = 1024;
+		int cur = 0;
+		check_mem((buffer = calloc(size, 1)));
 
+		while((cur < size) && ((rc = read(fd, buffer + cur++, 1)) != -1)) {
+				int last = cur - 1;
+				check(rc != -1, "read_line(%d) failed", fd);
+				if((buffer[last] == '\n') || (rc == 0)) break;
+		}
+		check(cur < size, "BUG: Line exceeds allocated length of %zd in read_line(%d)", size, fd);
+
+		return buffer;
+error:
+		if(buffer != NULL) free(buffer);
+		return NULL;
+}
+
+stl_object *stl_read_text_object(int fd) {
+		stl_object *obj = NULL;
+		char *header = read_line(fd);
+		check(header != NULL, "Failed to read STL/ASCII header.");
+		check((obj = stl_alloc(NULL, 0)), "Failed to allocated new STL object.");
+		snprintf(obj->header, sizeof(obj->header), "[STL/ASCII]: '%s'", header);
 
 		return obj;
 error:
