@@ -105,6 +105,8 @@ error:
 stl_object *stl_read_text_object(int fd) {
 		stl_object *obj = NULL;
 		char *line = read_line(fd, 0);
+		klist_t(stl_facet) *facets = kl_init(stl_facet);
+
 		check(line != NULL, "Failed to read STL/ASCII header.");
 		check((obj = stl_alloc(NULL, 0)), "Failed to allocated new STL object.");
 		snprintf(obj->header, sizeof(obj->header), "[STL/ASCII]: '%s'", line);
@@ -118,8 +120,10 @@ stl_object *stl_read_text_object(int fd) {
 				free(line);
 		}
 
+		kl_destroy(stl_facet, facets);
 		return obj;
 error:
+		kl_destroy(stl_facet, facets);
 		return NULL;
 }
 
