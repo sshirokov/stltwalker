@@ -77,27 +77,27 @@ error:
  * Return NULL in caes of error
  */
 char* read_line(int fd, int downcase, int trim) {
+		const size_t max_line = 100;
+		char *buffer = calloc(max_line, sizeof(char));
 		int rc = -1;
-		char *buffer = NULL;
-		size_t size = 1024;
-		int cur = 0;
-		check_mem((buffer = calloc(size, 1)));
+		check_mem(buffer);
 
-		while((cur < size) && ((rc = read(fd, buffer + cur++, 1)) != -1)) {
-				int last = cur - 1;
-				check(rc != -1, "read_line(%d) failed", fd);
-				if(downcase) buffer[last] = tolower(buffer[last]);
-				if(buffer[last] == '\n') break;
-				if(rc == 0) break;
-		}
-		check(cur < size, "BUG: Line exceeds allocated length of %zd in read_line(%d)", size, fd);
+		rc = read(fd, buffer, max_line);
+		check(rc != -1, "Failed to read.");
+
+		char *newline = strchr(buffer, '\n');
+		if(newline != NULL) *newline = '\0';
 
 		if((strlen(buffer) == 0) && (rc == 0)) goto eof;
+
+
+		rc = lseek(fd, -(rc - strlen(buffer) - 1), SEEK_CUR);
+		check(rc != -1, "Failed to seek.");
 
 		if(trim) {
 				char *new = NULL;
 				int start = 0;
-				int end = cur;
+				int end = strlen(buffer) ;
 				while(isspace(buffer[start++]));
 				while(isspace(buffer[--end]));
 				if(start > 0) start--;
@@ -108,11 +108,18 @@ char* read_line(int fd, int downcase, int trim) {
 				buffer = new;
 		}
 
-		return buffer;
+		if(downcase) {
+				for(int i = 0; i < strlen(buffer); i++) {
+						buffer[i] = tolower(buffer[i]);
+				}
+		}
 
-eof: /* "Deallocate and return NULL." Different label than error for clarity */
+
+
+		return buffer;
+eof:
 error:
-		if(buffer != NULL) free(buffer);
+		if(buffer) free(buffer);
 		return NULL;
 }
 
