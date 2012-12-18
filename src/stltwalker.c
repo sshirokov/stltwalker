@@ -13,7 +13,7 @@
 const char *Version[] = {"0", "0", "2"};
 
 struct Options {
-		enum {Collect} op;
+		enum {Collect, Pack} op;
 		stl_transformer out;
 		char *out_file;
 };
@@ -90,6 +90,10 @@ int main(int argc, char *argv[]) {
 								latest = &options.out;
 								options.out_file = argv[++i];
 								break;
+						case 'p':
+								log_info("Setting accumilation mode to Pack");
+								options.op = Pack;
+								break;
 						case 'h':
 								usage(argc, argv, NULL);
 						default:
@@ -125,10 +129,9 @@ int main(int argc, char *argv[]) {
 		// facets for the output
 		kliter_t(transformer) *tl_iter = NULL;
 		uint32_t total_facets = 0;
+		rc = transform_apply_list(in_objects);
 		for(tl_iter = kl_begin(in_objects); tl_iter != kl_end(in_objects); tl_iter = kl_next(tl_iter)) {
-				stl_transformer *transformer = kl_val(tl_iter);
-				transform_apply(transformer);
-				total_facets += transformer->object->facet_count;
+				total_facets += kl_val(tl_iter)->object->facet_count;
 		}
 		check(total_facets > 0, "%d facets in resulting model is insufficient.", total_facets);
 
@@ -136,28 +139,32 @@ int main(int argc, char *argv[]) {
 		check_mem(options.out.object = stl_alloc(NULL, total_facets));
 		switch(options.op) {
 		case Collect: {
-				int collected = 0;
-				for(tl_iter = kl_begin(in_objects); tl_iter != kl_end(in_objects); tl_iter = kl_next(tl_iter)) {
-						stl_transformer *transformer = kl_val(tl_iter);
-						stl_object *object = transformer->object;
-						memcpy(options.out.object->facets + collected,
-							   object->facets,
-							   sizeof(stl_facet) * object->facet_count);
-						collected += object->facet_count;
-				}
+				int collected = collect(options.out.object, in_objects);
+				check(collected == total_facets, "Facets lost during collection.");
 				break;
 		}
+
+		case Pack: {
+				check(chain_pack(in_objects) == in_objects->size,
+					  "Failed to chain pack transforms for all objects.");
+				check(transform_apply_list(in_objects) == in_objects->size,
+					  "Failed to apply pack transforms for all objects.");
+
+				check(collect(options.out.object, in_objects) == total_facets,
+					  "Facets lost during collection.");
+				break;
+		}
+
 		default:
 				sentinel("Unknown operation %d", options.op);
 		}
-		log_info("Output contains %d facets, performing accumilated transforms", total_facets);
-
 
 		// Apply transformations to the result
+		log_info("Output contains %d facets, performing accumilated transforms", total_facets);
 		transform_apply(&options.out);
 
-		log_info("Centering output object.");
 		// Make sure the result object is centered
+		log_info("Centering output object.");
 		object_transform_chain_zero_z(&options.out);
 		object_transform_chain_center_x(&options.out);
 		object_transform_chain_center_y(&options.out);

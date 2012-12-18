@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include "klist.h"
 #include "dbg.h"
 
 #include "stl.h"
@@ -47,4 +48,23 @@ int object_center(stl_object *obj, float3 *center) {
 		return 0;
 error:
 		return -1;
+}
+
+int collect(stl_object *out, klist_t(transformer) *in) {
+		kliter_t(transformer) *tl_iter = NULL;
+		int collected = 0;
+		for(tl_iter = kl_begin(in); tl_iter != kl_end(in); tl_iter = kl_next(tl_iter)) {
+				stl_transformer *transformer = kl_val(tl_iter);
+				stl_object *object = transformer->object;
+				memcpy(out->facets + collected,
+					   object->facets,
+					   sizeof(stl_facet) * object->facet_count);
+				collected += object->facet_count;
+		}
+		return collected;
+}
+
+int chain_pack(klist_t(transformer) *objects) {
+
+		return objects->size;
 }
