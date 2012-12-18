@@ -12,7 +12,26 @@ $ ./stltwalker -h
 
 ## Eyedropping Demo With Special Effects
 
-For a quick compositing demo try:
+### Packing
+
+The `-p` option asks stltwalker to pack the input objects on the build platform.
+
+The packing margin can be adjusted with `-b 25.0`
+
+```bash
+$ ./stltwalker -p data/jaws.stl --rotateZ=45.0 \
+                  data/jaws.stl                \
+                  data/jaws.stl                \
+                  -o /tmp/packed.stl
+```
+
+Which should result in something like this:
+
+![stltwalker packing composite](http://cl.ly/image/3L2p13000R32/Image%202012.12.18%201:49:05%20AM.png)
+
+### Compositing
+
+By default, the inputs are transformed and added to the build platform.
 
 ```bash
 $ ./stltwalker data/jaws.stl --rotateZ=10                      \
