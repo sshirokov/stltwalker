@@ -117,17 +117,37 @@ error:
 }
 
 stl_facet *stl_read_text_facet(const char *declaration, int fd) {
-		stl_facet *facet = NULL;
+		stl_facet *facet = (stl_facet*)calloc(1, sizeof(stl_facet));
 		int rc = -1;
-		float3 normal;
+		char *line = NULL;
 
-		rc = sscanf(declaration, "facet normal %f %f %f", &normal[0], &normal[1], &normal[2]);
+		check_mem(facet);
+		rc = sscanf(declaration, "facet normal %f %f %f", &facet->normal[0], &facet->normal[1], &facet->normal[2]);
 		check(rc == 3, "stl_Read_text_facet(%s): Normal line malformed", declaration);
 
-		log_info("Facet normal: <%f, %f, %f>", FLOAT3_FORMAT(normal));
+		check((line = read_line(fd, 1, 1)), "Malformed facet, no line follows valid normal declaration");
+		check(strcmp(line, "outer loop") == 0, "Malformed facet, no loop declaration following valid normal.");
+
+		for(int i = 0; i < 3; i++) {
+				check((line = read_line(fd, 1, 1)), "Failed to read vertex %d", i);
+				rc = sscanf(line, "vertex %f %f %f", &facet->vertices[i][0], &facet->vertices[i][1], &facet->vertices[i][2]);
+				check(rc == 3, "Vertex declaration [%s] did not contain (x, y, z) point.", line);
+
+				free(line);
+				line = NULL;
+		}
+
+		check((line = read_line(fd, 1, 1)), "No line following vertex declarations.");
+		check(strcmp(line, "endloop") == 0, "Vertex declarations not followed by 'endloop'. Got: '%s'", line);
+		free(line);
+		check((line = read_line(fd, 1, 1)), "No line following endloop.");
+		check(strcmp(line, "endfacet") == 0, "endloop not followed by 'endfacet'");
+		free(line);
+		line = NULL;
 
 		return facet;
 error:
+		if(line) free(line);
 		if(facet) free(facet);
 		return NULL;
 }
@@ -149,12 +169,23 @@ stl_object *stl_read_text_object(int fd) {
 				if(strncmp(line, "facet", strlen("facet")) == 0) {
 						stl_facet *facet = stl_read_text_facet(line, fd);
 						check(facet != NULL, "Failed to read facet on line %zd", lines);
+						*kl_pushp(stl_facet, facets) = facet;
 				}
 				else if(strncmp(line, "endsolid", strlen("endfacet")) == 0) {
-						log_info(" solid end");
+						check(facets->size > 0, "No facets loaded.");
+						log_info("ASCII solid ended. Loaded %zd facets", facets->size);
+
+						obj->facet_count = facets->size;
+						obj->facets = calloc(facets->size, sizeof(stl_facet));
+						check_mem(obj->facets);
+
+						stl_facet *facet = NULL;
+						for(int i = 0; kl_shift(stl_facet, facets, &facet) != -1; i++) {
+								obj->facets[i] = *facet;
+						}
 				}
 				else {
-						log_info("Line: [%s]", line);
+						sentinel("Unexpected line[%zd]: '%s'", lines, line);
 				}
 				free(line);
 		}
