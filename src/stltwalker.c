@@ -14,11 +14,18 @@ const char *Version[] = {"0", "0", "2"};
 
 struct Options {
 		enum {Collect, Pack} op;
+
+		// .op == Pack options
+		float padding;
+
 		stl_transformer out;
 		char *out_file;
 };
 struct Options options = {
 		.op = Collect,
+
+		.padding = 5.0,
+
 		.out_file = NULL
 };
 
@@ -32,6 +39,8 @@ void usage(int argc, char **argv, char *err, ...) {
 
 		fprintf(stream, "Options:\n");
 		fprintf(stream, "\t-h\tShow help\n");
+		fprintf(stream, "\t-p\tPack input objects automatically\n");
+		fprintf(stream, "\t-b <float>\tSet packing margin\n");
 		fprintf(stream, "\t-o filename\tOutput the resulting composite object to `filename'\n");
 		fprintf(stream, "\n");
 
@@ -88,7 +97,14 @@ int main(int argc, char *argv[]) {
 						switch((opt = arg[1])) {
 						case 'o':
 								latest = &options.out;
+								check(i + 1 < argc, "-%c requires a filename.", opt);
 								options.out_file = argv[++i];
+								break;
+						case 'b':
+								check(i + 1 < argc, "-%c requires a size.", opt);
+								rc = sscanf(argv[++i], "%f", &options.padding);
+								check(rc == 1, "-%c requires a size.", opt);
+								log_info("Padding is now %f", options.padding);
 								break;
 						case 'p':
 								log_info("Setting accumilation mode to Pack");
@@ -145,7 +161,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		case Pack: {
-				check(chain_pack(in_objects) == in_objects->size,
+				check(chain_pack(in_objects, options.padding) == in_objects->size,
 					  "Failed to chain pack transforms for all objects.");
 				check(transform_apply_list(in_objects) == in_objects->size,
 					  "Failed to apply pack transforms for all objects.");

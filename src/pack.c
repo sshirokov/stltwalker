@@ -64,7 +64,22 @@ int collect(stl_object *out, klist_t(transformer) *in) {
 		return collected;
 }
 
-int chain_pack(klist_t(transformer) *objects) {
+int chain_pack(klist_t(transformer) *objects, float buffer) {
+		float3 offset = FLOAT3_INIT;
+		stl_transformer *current = NULL,
+				        *last = NULL;
+		kliter_t(transformer) *tl_iter = NULL;
+		for(tl_iter = kl_begin(objects); tl_iter != kl_end(objects); tl_iter = kl_next(tl_iter)) {
+				last = current;
+				current = kl_val(tl_iter);
+				if(last != NULL) {
+						float3 bounds[2];
+						float4x4 transform;
+						object_bounds(last->object, &bounds[0], &bounds[1]);
+						f3X(offset) += (f3X(bounds[1]) - f3X(bounds[0])) + buffer;
+						transform_chain(current, *init_transform_translate_f(&transform, offset));
+				}
+		}
 
 		return objects->size;
 }
