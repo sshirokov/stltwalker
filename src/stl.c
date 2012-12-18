@@ -78,7 +78,7 @@ error:
  */
 char* read_line(int fd, int downcase, int trim) {
 		const size_t max_line = 100;
-		char *buffer = calloc(max_line, sizeof(char));
+		char *buffer = calloc(max_line + 1, sizeof(char));
 		int rc = -1;
 		check_mem(buffer);
 
