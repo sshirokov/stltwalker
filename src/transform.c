@@ -50,6 +50,18 @@ void transform_apply(stl_transformer *t) {
 		memcpy(t->transform, Identity4x4, sizeof(float4x4));
 }
 
+int transform_apply_list(klist_t(transformer) *objects) {
+		int transformed = 0;
+		kliter_t(transformer) *tl_iter = NULL;
+		for(tl_iter = kl_begin(objects); tl_iter != kl_end(objects); tl_iter = kl_next(tl_iter)) {
+				stl_transformer *transformer = kl_val(tl_iter);
+				transform_apply(transformer);
+				transformed++;
+		}
+
+		return transformed;
+}
+
 void object_transform_chain_zero_z(stl_transformer *t) {
 		float3 bounds[2] = {{INF, INF, INF}, {-INF, -INF, -INF}};
 		float3 v = FLOAT3_INIT;

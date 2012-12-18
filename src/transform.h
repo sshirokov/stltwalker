@@ -16,10 +16,15 @@ typedef struct s_stl_transformer {
 stl_transformer *transformer_alloc(stl_object *obj);
 void transformer_free(stl_transformer *t);
 
+// Composite wrappers
+#define mp_transformer_free(x) transformer_free(kl_val(x))
+KLIST_INIT(transformer, stl_transformer*, mp_transformer_free)
+
 stl_transformer *transformer_init(stl_transformer *t, stl_object *obj);
 
 void transform_chain(stl_transformer *t, float4x4 transform);
 void transform_apply(stl_transformer *t);
+int transform_apply_list(klist_t(transformer) *objects);
 
 // Object transformations
 void object_transform_chain_zero_z(stl_transformer *t);
@@ -27,10 +32,6 @@ void object_transform_chain_center_x(stl_transformer *t);
 void object_transform_chain_center_y(stl_transformer *t);
 
 typedef void (*obj_transform_t)(stl_transformer *t);
-
-// Composite wrappers
-#define mp_transformer_free(x) transformer_free(kl_val(x))
-KLIST_INIT(transformer, stl_transformer*, mp_transformer_free)
 
 // Conversion helpers
 void float3tofloat4x1(const float3 *v, float4x1 *m);
