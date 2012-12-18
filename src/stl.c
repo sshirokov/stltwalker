@@ -116,6 +116,22 @@ error:
 		return NULL;
 }
 
+stl_facet *stl_read_text_facet(const char *declaration, int fd) {
+		stl_facet *facet = NULL;
+		int rc = -1;
+		float3 normal;
+
+		rc = sscanf(declaration, "facet normal %f %f %f", &normal[0], &normal[1], &normal[2]);
+		check(rc == 3, "stl_Read_text_facet(%s): Normal line malformed", declaration);
+
+		log_info("Facet normal: <%f, %f, %f>", FLOAT3_FORMAT(normal));
+
+		return facet;
+error:
+		if(facet) free(facet);
+		return NULL;
+}
+
 stl_object *stl_read_text_object(int fd) {
 		stl_object *obj = NULL;
 		char *line = read_line(fd, 0, 1);
@@ -131,7 +147,8 @@ stl_object *stl_read_text_object(int fd) {
 		while((line = read_line(fd, 1, 1))) {
 				lines++;
 				if(strncmp(line, "facet", strlen("facet")) == 0) {
-						log_info(" facet start");
+						stl_facet *facet = stl_read_text_facet(line, fd);
+						check(facet != NULL, "Failed to read facet on line %zd", lines);
 				}
 				else if(strncmp(line, "endsolid", strlen("endfacet")) == 0) {
 						log_info(" solid end");
