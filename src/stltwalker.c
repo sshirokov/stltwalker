@@ -150,10 +150,17 @@ int main(int argc, char *argv[]) {
 		default:
 				sentinel("Unknown operation %d", options.op);
 		}
-		log_info("Output contains %d facets", total_facets);
+		log_info("Output contains %d facets, performing accumilated transforms", total_facets);
 
 
 		// Apply transformations to the result
+		transform_apply(&options.out);
+
+		log_info("Centering output object.");
+		// Make sure the result object is centered
+		object_transform_chain_zero_z(&options.out);
+		object_transform_chain_center_x(&options.out);
+		object_transform_chain_center_y(&options.out);
 		transform_apply(&options.out);
 
  		// Perform the "result" operation
