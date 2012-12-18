@@ -66,8 +66,7 @@ int collect(stl_object *out, klist_t(transformer) *in) {
 
 int chain_pack(klist_t(transformer) *objects, float buffer) {
 		float3 offset = FLOAT3_INIT;
-		stl_transformer *current = NULL,
-				        *last = NULL;
+		stl_transformer *current = NULL, *last = NULL;
 		kliter_t(transformer) *tl_iter = NULL;
 		for(tl_iter = kl_begin(objects); tl_iter != kl_end(objects); tl_iter = kl_next(tl_iter)) {
 				last = current;
