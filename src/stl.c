@@ -85,11 +85,15 @@ char* read_line(int fd, int downcase, int trim) {
 		rc = read(fd, buffer, max_line);
 		check(rc != -1, "Failed to read.");
 
+		char *ret = NULL;
+		while((ret = strchr(buffer, '\r'))) {
+				*ret = ' ';
+		}
+
 		char *newline = strchr(buffer, '\n');
 		if(newline != NULL) *newline = '\0';
 
 		if((strlen(buffer) == 0) && (rc == 0)) goto eof;
-
 
 		rc = lseek(fd, -(rc - strlen(buffer) - 1), SEEK_CUR);
 		check(rc != -1, "Failed to seek.");
@@ -102,7 +106,7 @@ char* read_line(int fd, int downcase, int trim) {
 				while(isspace(buffer[--end]));
 				if(start > 0) start--;
 				buffer[++end] = '\0';
-				check_mem((new = calloc(strlen(buffer + start), 1)));
+				check_mem((new = calloc(strlen(buffer + start) + 1, 1)));
 				memcpy(new, buffer + start, end - start);
 				free(buffer);
 				buffer = new;
@@ -113,7 +117,6 @@ char* read_line(int fd, int downcase, int trim) {
 						buffer[i] = tolower(buffer[i]);
 				}
 		}
-
 
 
 		return buffer;
