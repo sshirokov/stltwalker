@@ -74,8 +74,18 @@ int chain_pack(klist_t(transformer) *objects, float buffer) {
 				if(last != NULL) {
 						float3 bounds[2];
 						float4x4 transform;
+
+						// Offset half of the previous object
 						object_bounds(last->object, &bounds[0], &bounds[1]);
-						f3X(offset) += (f3X(bounds[1]) - f3X(bounds[0])) + buffer;
+						f3X(offset) += (f3X(bounds[1]) - f3X(bounds[0])) / 2;
+
+						// Offset half of the current object
+						object_bounds(current->object, &bounds[0], &bounds[1]);
+						f3X(offset) += (f3X(bounds[1]) - f3X(bounds[0])) / 2;
+
+						// Add the buffer padding
+						f3X(offset) += buffer;
+
 						transform_chain(current, *init_transform_translate_f(&transform, offset));
 				}
 		}
