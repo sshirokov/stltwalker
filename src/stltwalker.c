@@ -43,6 +43,9 @@ void usage(int argc, char **argv, char *err, ...) {
 
 		fprintf(stream, "Options:\n");
 		fprintf(stream, "\t-h\tShow help\n");
+		fprintf(stream, "\t-L <float>\tMaximum result object length\n");
+		fprintf(stream, "\t-W <float>\tMaximum result object width\n");
+		fprintf(stream, "\t-H <float>\tMaximum result object height\n");
 		fprintf(stream, "\t-p\tPack input objects automatically\n");
 		fprintf(stream, "\t-b <float>\tSet packing margin\n");
 		fprintf(stream, "\t-o filename\tOutput the resulting composite object to `filename'\n");
@@ -99,6 +102,27 @@ int main(int argc, char *argv[]) {
 				// Options
 				else if(arg[0] == '-' && strlen(arg) == 2) {
 						switch((opt = arg[1])) {
+						case 'L': {
+								char *dim = argv[++i];
+								check(i < argc, "-%c requires a numeric parameter", opt);
+								check(sscanf(dim, "%f", &options.max_model_lwh[0]) == 1,
+									  "Invalid maximum length '%s'", dim);
+								break;
+						}
+						case 'W': {
+								char *dim = argv[++i];
+								check(i < argc, "-%c requires a numeric parameter", opt);
+								check(sscanf(dim, "%f", &options.max_model_lwh[1]) == 1,
+									  "Invalid maximum width '%s'", dim);
+								break;
+						}
+						case 'H': {
+								char *dim = argv[++i];
+								check(i < argc, "-%c requires a numeric parameter", opt);
+								check(sscanf(dim, "%f", &options.max_model_lwh[2]) == 1,
+									  "Invalid maximum height '%s'", dim);
+								break;
+						}
 						case 'o':
 								latest = &options.out;
 								check(i + 1 < argc, "-%c requires a filename.", opt);
