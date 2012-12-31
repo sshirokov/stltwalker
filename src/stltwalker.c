@@ -18,6 +18,8 @@ struct Options {
 		// .op == Pack options
 		float padding;
 
+		float3 max_model_lwh;
+
 		stl_transformer out;
 		char *out_file;
 };
@@ -25,6 +27,8 @@ struct Options options = {
 		.op = Collect,
 
 		.padding = 5.0,
+
+		.max_model_lwh = FLOAT3_INIT_MAX,
 
 		.out_file = NULL
 };
@@ -185,6 +189,19 @@ int main(int argc, char *argv[]) {
 		object_transform_chain_center_x(&options.out);
 		object_transform_chain_center_y(&options.out);
 		transform_apply(&options.out);
+
+		// Perform bounds checking
+		float3 bounds[2] = {FLOAT3_INIT, FLOAT3_INIT};
+		object_bounds(options.out.object, &bounds[0], &bounds[1]);
+		float3 dims = {f3X(bounds[1]) - f3X(bounds[0]), f3Y(bounds[1]) - f3Y(bounds[0]), f3Z(bounds[1]) - f3Z(bounds[0])};
+
+		log_info("Result dimensions: %f x %f x %f Max: %f x %f x %f",
+				 FLOAT3_FORMAT(dims), FLOAT3_FORMAT(options.max_model_lwh));
+		check((dims[0] <= options.max_model_lwh[0]) &&
+			  (dims[1] <= options.max_model_lwh[1]) &&
+			  (dims[2] <= options.max_model_lwh[2]),
+			  "Bounds check FAILED: Result dimensions: %f x %f x %f Maximum dimensions: %f x %f x %f",
+			  FLOAT3_FORMAT(dims), FLOAT3_FORMAT(options.max_model_lwh));
 
  		// Perform the "result" operation
 		if(options.out_file != NULL) {
