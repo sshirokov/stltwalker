@@ -5,7 +5,7 @@
 #define __TRANSFORM_H
 
 #define PI 3.1415926
-#define INF (-log(0))
+#define INF INFINITY
 
 typedef struct s_stl_transformer {
 		stl_object *object;
