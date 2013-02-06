@@ -10,6 +10,12 @@
 typedef struct s_stl_transformer {
 		stl_object *object;
 
+		// Default options set in `transformer_init`
+		enum {
+				Noop       = 0,
+				FixNormals = 1
+		} options;
+
 		float4x4 transform;
 } stl_transformer;
 

@@ -167,6 +167,7 @@ int main(int argc, char *argv[]) {
 								break;
 						case 'R':
 								options.raw_out = !options.raw_out;
+								options.out.options = Noop;
 								log_info("Raw out is now %s", options.raw_out ? "ON" : "OFF");
 								break;
 						case 'D':
@@ -195,6 +196,7 @@ int main(int argc, char *argv[]) {
 								transform_apply(latest);
 						}
 						else {
+								latest->options = Noop;
 								log_info("NOT Centering '%s'", arg);
 						}
 

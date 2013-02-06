@@ -23,6 +23,7 @@ void transformer_free(stl_transformer *t) {
 
 stl_transformer *transformer_init(stl_transformer *t, stl_object *obj) {
 		t->object = obj;
+		t->options = FixNormals;
 		memcpy(t->transform, Identity4x4, sizeof(float4x4));
 		return t;
 }
@@ -36,11 +37,17 @@ void transform_chain(stl_transformer *t, float4x4 transform) {
 void transform_apply(stl_transformer *t) {
 		for(int f = 0; f < t->object->facet_count; f++) {
 				stl_facet *facet = t->object->facets + f;
+
+				// Vertex operations
 				for(int v = 0; v < 3; v++) {
 						float4x1 initial, result;
 						float3tofloat4x1(&facet->vertices[v], &initial);
 						mult_4x1f(&result, t->transform, initial);
 						float4x1tofloat3(&result, &facet->vertices[v]);
+				}
+
+				// Surface operations
+				if(t->options & FixNormals) {
 						stl_facet_update_normal(facet);
 				}
 		}
