@@ -13,7 +13,7 @@
 const char *Version[] = {"0", "0", "2"};
 
 struct Options {
-		enum {Collect, Pack} op;
+		enum {Collect, Pack, Copy} op;
 
 		// .op == Pack options
 		float padding;
@@ -58,6 +58,7 @@ void usage(int argc, char **argv, char *err, ...) {
 
 		fprintf(stream, "Options:\n");
 		fprintf(stream, "\t-h\tShow help\n");
+		fprintf(stream, "\t-I\tCopy maximum 1 input object to output memory directly.\n");
 		fprintf(stream, "\t-L <float>\tMaximum result object length\n");
 		fprintf(stream, "\t-W <float>\tMaximum result object width\n");
 		fprintf(stream, "\t-H <float>\tMaximum result object height\n");
@@ -156,6 +157,10 @@ int main(int argc, char *argv[]) {
 								log_info("Setting accumilation mode to Pack");
 								options.op = Pack;
 								break;
+						case 'I':
+								log_info("Setting memcopy collection mode.");
+								options.op = Copy;
+								break;
 						case 'r':
 								options.raw_load = !options.raw_load;
 								log_info("Raw load is now %s", options.raw_load ? "ON" : "OFF");
@@ -223,6 +228,15 @@ int main(int argc, char *argv[]) {
 				break;
 		}
 
+		case Copy: {
+				check(in_objects->size == 1, "Identiy-copy accumilation only allows for one input.");
+				stl_object* input = kl_val(kl_begin(in_objects))->object;
+
+				memcpy(options.out.object->header, input->header, sizeof(input->header));
+				memcpy(options.out.object->facets, input->facets, sizeof(stl_facet) * input->facet_count);
+				break;
+		}
+
 		case Pack: {
 				check(chain_pack(in_objects, options.padding) == in_objects->size,
 					  "Failed to chain pack transforms for all objects.");
@@ -285,7 +299,7 @@ int main(int argc, char *argv[]) {
 		if(options.describe_level > 1) {
 				log_info("=> Header.");
 				for(int i = 0; i < sizeof(options.out.object->header); i += 16) {
-						log_info("[0x%02X] %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x", i,
+						log_info("[0x%02X] %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x", i,
 								 options.out.object->header[i+0],
 								 options.out.object->header[i+1],
 								 options.out.object->header[i+2],
