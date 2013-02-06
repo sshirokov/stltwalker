@@ -1,6 +1,5 @@
 A scriptable interface for STL transformation and accumilation.
 
-
 ## Quickstart
 
 ```bash
@@ -8,7 +7,30 @@ $ git clone https://github.com/sshirokov/stltwalker.git
 $ cd stltwalker
 $ make
 $ ./stltwalker -h
+./stltwalker [-options] {file0 [--operations]..}..{fileN [--operations]..}
+	v0.0.3
+
+Options:
+	-h	Show help
+	-I	Copy maximum 1 input object to output memory directly.
+	-L <float>	Maximum result object length
+	-W <float>	Maximum result object width
+	-H <float>	Maximum result object height
+	-p	Pack input objects automatically
+	-b <float>	Set packing margin
+	-o filename	Output the resulting composite object to `filename'
+	-r	Do not center and raise object above the Z plane on load
+	-R	Do not center and raise the result object above the Z plane
+	-D	Increase the detail with which the result is described
+
+Transforms:
+	--scale=<options>	Scale the model by a constant factor
+	--rotateX=<options>	Rotate the model around the X axis (degrees)
+	--rotateY=<options>	Rotate the model around the Y axis (degrees)
+	--rotateZ=<options>	Rotate the model around the Z axis (degrees)
+	--translate=<options>	Translate the model along a vector <X,Y,Z>
 ```
+
 
 ## Eyedropping Demo With Special Effects
 
