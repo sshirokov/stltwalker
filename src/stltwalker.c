@@ -10,7 +10,7 @@
 #include "transform.h"
 #include "pack.h"
 
-const char *Version[] = {"0", "0", "2"};
+const char *Version[] = {"0", "0", "3"};
 
 struct Options {
 		enum {Collect, Pack, Copy} op;
