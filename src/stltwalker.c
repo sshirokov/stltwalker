@@ -20,8 +20,15 @@ struct Options {
 
 		float3 max_model_lwh;
 
+		// Disables centering the model before chaining other transforms
+		int raw_load;
+		int raw_out;
+
 		stl_transformer out;
 		char *out_file;
+
+		// Verbosity level
+		int volume;
 };
 struct Options options = {
 		.op = Collect,
@@ -30,7 +37,12 @@ struct Options options = {
 
 		.max_model_lwh = FLOAT3_INIT_MAX,
 
-		.out_file = NULL
+		.raw_load = 0,
+		.raw_out  = 0,
+
+		.out_file = NULL,
+
+		.volume = 0
 };
 
 
@@ -138,6 +150,14 @@ int main(int argc, char *argv[]) {
 								log_info("Setting accumilation mode to Pack");
 								options.op = Pack;
 								break;
+						case 'r':
+								options.raw_load = !options.raw_load;
+								log_info("Raw load is now %s", options.raw_load ? "ON" : "OFF");
+								break;
+						case 'R':
+								options.raw_out = !options.raw_out;
+								log_info("Raw out is now %s", options.raw_out ? "ON" : "OFF");
+								break;
 						case 'h':
 								usage(argc, argv, NULL);
 						default:
@@ -151,12 +171,18 @@ int main(int argc, char *argv[]) {
 						check(latest != NULL, "Failed to create transformer");
 						check(latest->object != NULL, "Failed to load object from '%s'", arg);
 
-						// Center and +Z the object
-						object_transform_chain_zero_z(latest);
-						object_transform_chain_center_x(latest);
-						object_transform_chain_center_y(latest);
-						// Apply any potential chained object transforms
-						transform_apply(latest);
+						if(!options.raw_load) {
+								log_info("Centering '%s'", arg);
+								// Center and +Z the object
+								object_transform_chain_zero_z(latest);
+								object_transform_chain_center_x(latest);
+								object_transform_chain_center_y(latest);
+								// Apply any potential chained object transforms
+								transform_apply(latest);
+						}
+						else {
+								log_info("NOT Centering '%s'", arg);
+						}
 
 						float3 b[2] = {FLOAT3_INIT, FLOAT3_INIT};
 						float3 c = FLOAT3_INIT_MAX;
@@ -208,11 +234,14 @@ int main(int argc, char *argv[]) {
 		transform_apply(&options.out);
 
 		// Make sure the result object is centered
-		log_info("Centering output object.");
-		object_transform_chain_zero_z(&options.out);
-		object_transform_chain_center_x(&options.out);
-		object_transform_chain_center_y(&options.out);
-		transform_apply(&options.out);
+		log_info("%sCentering output object.", options.raw_out ? "NOT " : "");
+
+		if(!options.raw_out) {
+				object_transform_chain_zero_z(&options.out);
+				object_transform_chain_center_x(&options.out);
+				object_transform_chain_center_y(&options.out);
+				transform_apply(&options.out);
+		}
 
 		// Perform bounds checking
 		float3 bounds[2] = {FLOAT3_INIT, FLOAT3_INIT};
