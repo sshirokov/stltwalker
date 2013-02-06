@@ -25,6 +25,7 @@ struct Options {
 		int raw_out;
 
 		stl_transformer out;
+		int describe_level;
 		char *out_file;
 
 		// Verbosity level
@@ -39,8 +40,10 @@ struct Options options = {
 
 		.raw_load = 0,
 		.raw_out  = 0,
+		.describe_level = 0,
 
 		.out_file = NULL,
+
 
 		.volume = 0
 };
@@ -61,6 +64,9 @@ void usage(int argc, char **argv, char *err, ...) {
 		fprintf(stream, "\t-p\tPack input objects automatically\n");
 		fprintf(stream, "\t-b <float>\tSet packing margin\n");
 		fprintf(stream, "\t-o filename\tOutput the resulting composite object to `filename'\n");
+		fprintf(stream, "\t-r\tDo not center and raise object above the Z plane on load\n");
+		fprintf(stream, "\t-R\tDo not center and raise the result object above the Z plane\n");
+		fprintf(stream, "\t-D\tIncrease the detail with which the result is described\n");
 		fprintf(stream, "\n");
 
 		fprintf(stream, "Transforms:\n");
@@ -158,6 +164,9 @@ int main(int argc, char *argv[]) {
 								options.raw_out = !options.raw_out;
 								log_info("Raw out is now %s", options.raw_out ? "ON" : "OFF");
 								break;
+						case 'D':
+								log_info("Result description level is now %d", ++options.describe_level);
+								break;
 						case 'h':
 								usage(argc, argv, NULL);
 						default:
@@ -233,9 +242,8 @@ int main(int argc, char *argv[]) {
 		log_info("Output contains %d facets, performing accumilated transforms", total_facets);
 		transform_apply(&options.out);
 
-		// Make sure the result object is centered
+		// Make sure the result object is centered if needed
 		log_info("%sCentering output object.", options.raw_out ? "NOT " : "");
-
 		if(!options.raw_out) {
 				object_transform_chain_zero_z(&options.out);
 				object_transform_chain_center_x(&options.out);
@@ -248,8 +256,6 @@ int main(int argc, char *argv[]) {
 		object_bounds(options.out.object, &bounds[0], &bounds[1]);
 		float3 dims = {f3X(bounds[1]) - f3X(bounds[0]), f3Y(bounds[1]) - f3Y(bounds[0]), f3Z(bounds[1]) - f3Z(bounds[0])};
 
-		log_info("Result dimensions: %f x %f x %f Max: %f x %f x %f",
-				 FLOAT3_FORMAT(dims), FLOAT3_FORMAT(options.max_model_lwh));
 		check((dims[0] <= options.max_model_lwh[0]) &&
 			  (dims[1] <= options.max_model_lwh[1]) &&
 			  (dims[2] <= options.max_model_lwh[2]),
@@ -261,6 +267,32 @@ int main(int argc, char *argv[]) {
 				log_info("Writing result object to: '%s'", options.out_file);
 				rc = stl_write_file(options.out.object, options.out_file);
 				check(rc == 0, "Failed to write output to %s" , options.out_file);
+		}
+
+		// Describe the result in as much detail as requested.
+		if(options.describe_level > 0) {
+				float3 center = FLOAT3_INIT;
+				check(object_center(options.out.object, &center) == 0,
+					  "Failed to get center of output object: %p", options.out.object);
+
+				log_info("=> Output object description:");
+				log_info("\tDimensions: %f x %f x %f Max: %f x %f x %f",
+						 FLOAT3_FORMAT(dims), FLOAT3_FORMAT(options.max_model_lwh));
+				log_info("\tCenter: (%f, %f, %f)", FLOAT3_FORMAT(center));
+				log_info("\t%d faces", options.out.object->facet_count);
+
+				if(options.describe_level > 1) {
+						log_info("=> Faces:");
+						for(uint32_t i = 0; i < options.out.object->facet_count; i++) {
+								stl_facet* facet = &options.out.object->facets[i];
+								log_info("\t%d Attr: 0x%X: Normal: <%f, %f, %f>",
+										 i, facet->attr, FLOAT3_FORMAT(facet->normal));
+								for(int v = 0; v < 3; v++) {
+										log_info("\t\t%d: (%f, %f, %f)",
+												 v, FLOAT3_FORMAT(facet->vertices[v]));
+								}
+						}
+				}
 		}
 
 		kl_destroy(transformer, in_objects);
