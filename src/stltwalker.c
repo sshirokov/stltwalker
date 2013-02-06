@@ -280,17 +280,41 @@ int main(int argc, char *argv[]) {
 						 FLOAT3_FORMAT(dims), FLOAT3_FORMAT(options.max_model_lwh));
 				log_info("\tCenter: (%f, %f, %f)", FLOAT3_FORMAT(center));
 				log_info("\t%d faces", options.out.object->facet_count);
+		}
 
-				if(options.describe_level > 1) {
-						log_info("=> Faces:");
-						for(uint32_t i = 0; i < options.out.object->facet_count; i++) {
-								stl_facet* facet = &options.out.object->facets[i];
-								log_info("\t%d Attr: 0x%X: Normal: <%f, %f, %f>",
-										 i, facet->attr, FLOAT3_FORMAT(facet->normal));
-								for(int v = 0; v < 3; v++) {
-										log_info("\t\t%d: (%f, %f, %f)",
-												 v, FLOAT3_FORMAT(facet->vertices[v]));
-								}
+		if(options.describe_level > 1) {
+				log_info("=> Header.");
+				for(int i = 0; i < sizeof(options.out.object->header); i += 16) {
+						log_info("[0x%02X] %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x", i,
+								 options.out.object->header[i+0],
+								 options.out.object->header[i+1],
+								 options.out.object->header[i+2],
+								 options.out.object->header[i+3],
+								 options.out.object->header[i+4],
+								 options.out.object->header[i+5],
+								 options.out.object->header[i+6],
+								 options.out.object->header[i+7],
+								 options.out.object->header[i+8],
+								 options.out.object->header[i+9],
+								 options.out.object->header[i+10],
+								 options.out.object->header[i+11],
+								 options.out.object->header[i+12],
+								 options.out.object->header[i+13],
+								 options.out.object->header[i+14],
+								 options.out.object->header[i+15]
+								);
+				}
+		}
+
+		if(options.describe_level > 2) {
+				log_info("=> Faces:");
+				for(uint32_t i = 0; i < options.out.object->facet_count; i++) {
+						stl_facet* facet = &options.out.object->facets[i];
+						log_info("\t%d Attr: 0x%X: Normal: <%f, %f, %f>",
+								 i, facet->attr, FLOAT3_FORMAT(facet->normal));
+						for(int v = 0; v < 3; v++) {
+								log_info("\t\t%d: (%f, %f, %f)",
+										 v, FLOAT3_FORMAT(facet->vertices[v]));
 						}
 				}
 		}
