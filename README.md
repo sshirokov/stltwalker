@@ -31,6 +31,8 @@ Transforms:
 	--translate=<options>	Translate the model along a vector <X,Y,Z>
 ```
 
+`-L`, `-W`, and `-H` will change the exit status of the application to non-zero as well as printing the failure.
+
 
 ## Eyedropping Demo With Special Effects
 
