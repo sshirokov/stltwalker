@@ -21,6 +21,7 @@ Options:
 	-o filename	Output the resulting composite object to `filename'
 	-r	Do not center and raise object above the Z plane on load
 	-R	Do not center and raise the result object above the Z plane
+	-Z	Apply all pending transforms and place the current model on the Z plane
 	-D	Increase the detail with which the result is described
 
 Transforms:
