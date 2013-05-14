@@ -149,6 +149,7 @@ int main(int argc, char *argv[]) {
 								log_info("Chaining and applying Z-plane transform");
 								object_transform_chain_zero_z(latest);
 								transform_apply(latest);
+								break;
 						}
 						case 'o':
 								latest = &options.out;
