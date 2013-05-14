@@ -67,6 +67,7 @@ void usage(int argc, char **argv, char *err, ...) {
 		fprintf(stream, "\t-o filename\tOutput the resulting composite object to `filename'\n");
 		fprintf(stream, "\t-r\tDo not center and raise object above the Z plane on load\n");
 		fprintf(stream, "\t-R\tDo not center and raise the result object above the Z plane\n");
+		fprintf(stream, "\t-Z\tApply all pending transforms and place the current model on the Z plane\n");
 		fprintf(stream, "\t-D\tIncrease the detail with which the result is described\n");
 		fprintf(stream, "\n");
 
@@ -141,6 +142,13 @@ int main(int argc, char *argv[]) {
 								check(sscanf(dim, "%f", &options.max_model_lwh[2]) == 1,
 									  "Invalid maximum height '%s'", dim);
 								break;
+						}
+						case 'Z': {
+								log_info("Applying pending transforms for %c", opt);
+								transform_apply(latest);
+								log_info("Chaining and applying Z-plane transform");
+								object_transform_chain_zero_z(latest);
+								transform_apply(latest);
 						}
 						case 'o':
 								latest = &options.out;
