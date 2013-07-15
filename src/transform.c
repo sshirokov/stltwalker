@@ -1,5 +1,5 @@
 #include <math.h>
-
+#include <strings.h>
 #include "dbg.h"
 
 #include "matrix.h"
@@ -101,14 +101,14 @@ float deg2rad(float deg) {
 		return deg * (PI / 180.0);
 }
 
-void float3tofloat4x1(const float3 *v, float4x1 *m) {
+void float3tofloat4x1(float3 *v, float4x1 *m) {
 		(*m)[0][0] = (*v)[0];
 		(*m)[1][0] = (*v)[1];
 		(*m)[2][0] = (*v)[2];
 		(*m)[3][0] = 1.0f;
 }
 
-void float4x1tofloat3(const float4x1 *m, float3 *v) {
+void float4x1tofloat3(float4x1 *m, float3 *v) {
 		(*v)[0] = (*m)[0][0];
 		(*v)[1] = (*m)[1][0];
 		(*v)[2] = (*m)[2][0];
