@@ -40,8 +40,8 @@ void object_transform_chain_center_y(stl_transformer *t);
 typedef void (*obj_transform_t)(stl_transformer *t);
 
 // Conversion helpers
-void float3tofloat4x1(const float3 *v, float4x1 *m);
-void float4x1tofloat3(const float4x1 *m, float3 *v);
+void float3tofloat4x1(float3 *v, float4x1 *m);
+void float4x1tofloat3(float4x1 *m, float3 *v);
 
 // Available transforms definition
 typedef float4x4* (*transform_t)(float4x4 *t, char *args);
