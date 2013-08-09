@@ -221,6 +221,7 @@ stl_object *stl_read_object(int fd) {
 		rc = read(fd, &n_tris, sizeof(n_tris));
 		check(rc == sizeof(n_tris), "Failed to read facet count.");
 		check(n_tris > 0, "Facet count cannot be zero.");
+		log_info("Expecting to read %d triangles.", n_tris);
 
 		obj = stl_alloc(header, n_tris);
 
