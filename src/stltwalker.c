@@ -109,6 +109,7 @@ int main(int argc, char *argv[]) {
 				if(strncmp(arg, "--", 2) == 0) {
 						char t_name[256] = {0};
 						char t_args[256] = {0};
+						check(strlen(arg) < (sizeof(t_name) - 1) + (sizeof(t_args) - 1), "Transform declaration is too long: %zd", strlen(arg));
 						rc = sscanf(arg, "--%[^=]=%s", t_name, t_args);
 						check(rc >= 1, "Invalid transform spec '%s', format '--name=args'", arg);
 
