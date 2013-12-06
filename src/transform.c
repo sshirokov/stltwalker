@@ -132,6 +132,26 @@ error:
 		return NULL;
 }
 
+float4x4 *init_transform_skew_f(float4x4 *t, float3 skew) {
+		bzero(t, sizeof(float4x4));
+		(*t)[0][0] = skew[0];
+		(*t)[1][1] = skew[1];
+		(*t)[2][2] = skew[2];
+		(*t)[3][3] = 1.0;
+		return t;
+}
+
+float4x4 *init_transform_skew(float4x4 *t, char *args) {
+		float3 skew = {1.0, 1.0, 1.0};
+		int rc = sscanf(args, "%f,%f,%f", &skew[0], &skew[1], &skew[2]);
+		if(args && strlen(args) > 0) check(rc == 3, "Invalid skew: '%s'", args);
+		if(args == NULL || strlen(args) == 0) check(rc == 3, "Skew requires an argument");
+		return init_transform_skew_f(t, skew);
+error:
+		return NULL;
+}
+
+
 float4x4 *init_transform_rotateX_f(float4x4 *t, float deg) {
 		float rad = deg2rad(deg);
 		bzero(t, sizeof(float4x4));
@@ -214,6 +234,7 @@ error:
 // Transformer listing
 const transformer transformers[] = {
 		{"scale",     "Scale the model by a constant factor", init_transform_scale},
+		{"skew",      "Scale non-uniformly by <X,Y,Z>", init_transform_skew},
 		{"rotateX",   "Rotate the model around the X axis (degrees)", init_transform_rotateX},
 		{"rotateY",   "Rotate the model around the Y axis (degrees)", init_transform_rotateY},
 		{"rotateZ",   "Rotate the model around the Z axis (degrees)", init_transform_rotateZ},
