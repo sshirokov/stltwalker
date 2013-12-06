@@ -301,11 +301,11 @@ int main(int argc, char *argv[]) {
 				check(object_center(options.out.object, &center) == 0,
 					  "Failed to get center of output object: %p", options.out.object);
 
-				log_info("=> Output object description:");
-				log_info("\tDimensions: %f x %f x %f Max: %f x %f x %f",
+				printf("=> Output object description:\n");
+				printf("\tDimensions: %f x %f x %f Max: %f x %f x %f\n",
 						 FLOAT3_FORMAT(dims), FLOAT3_FORMAT(options.max_model_lwh));
-				log_info("\tCenter: (%f, %f, %f)", FLOAT3_FORMAT(center));
-				log_info("\t%d faces", options.out.object->facet_count);
+				printf("\tCenter: (%f, %f, %f)\n", FLOAT3_FORMAT(center));
+				printf("\t%d faces\n", options.out.object->facet_count);
 		}
 
 		if(options.describe_level > 1) {
