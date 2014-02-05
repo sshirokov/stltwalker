@@ -22,7 +22,7 @@ clean:
 
 ## Plumbing
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@.new $(LIBS) $^
+	$(CC) $(CFLAGS) -o $@.new $^ $(LIBS)
 	mv $@.new $@
 
 
